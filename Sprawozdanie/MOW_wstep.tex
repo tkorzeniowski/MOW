@@ -1,0 +1,289 @@
+\documentclass[11pt,a4paper,twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+
+
+
+\usepackage{graphicx}
+\usepackage{subcaption} % obrazki obok siebie
+%\usepackage[caption=false]{subfig} % obrazki nad sobą
+\usepackage{wrapfig} 
+\usepackage{float}
+\usepackage{geometry}
+%\geometry{lmargin=3cm,rmargin=2cm, tmargin=2.5cm, bmargin=2.5cm} %marginesy w pracy inż/mgr
+\geometry{lmargin=2.5cm,rmargin=2.5cm, tmargin=2.5cm, bmargin=2.5cm} %marginesy ogólne
+\usepackage{multirow} % scalanie wierszy tabeli
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{} % wszystkie nagłówki puste
+%\fancyhead[RE,LO]{ Absolwenci Wydziału Prawa  2012}
+\fancyfoot{} % wszystkie stopki puste
+\fancyfoot[LE,RO]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+%\renewcommand{\footrulewidth}{0.4pt}
+
+\usepackage[hidelinks]{hyperref}% nazwy odsyłaczy
+
+%unikanie myślników dzielących słowa między liniami
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\makeatletter
+\renewcommand{\ALG@name}{Algorytm}
+\renewcommand{\figurename}{Wykres}
+
+\usepackage{enumitem}
+\setitemize{itemsep=2pt,topsep=2pt,parsep=2pt,partopsep=2pt} %odstępy wyliczanych elementów (-)
+
+\usepackage{indentfirst} % wcięcie w pierwszym akapicie (pod)rozdziału
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% formatowanie kodu R
+\usepackage{listings} 
+\usepackage{color}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\lstset{
+language=R,
+basicstyle=\footnotesize\ttfamily,%\scriptsize\ttfamily,
+commentstyle=\ttfamily\color{gray},
+numbers=left,
+numberstyle=\ttfamily\color{gray}\footnotesize,
+stepnumber=0, % numeracja linii
+numbersep=5pt,
+backgroundcolor=\color{white},
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=none, % obramowanie kodu
+tabsize=2,
+captionpos=b,
+breaklines=true,
+breakatwhitespace=false,
+title=\lstname,
+escapeinside={},
+keywordstyle={},
+morekeywords={}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% zawijanie tekstu w tabelach zgodnie z życzeniem
+\usepackage{stackengine}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setstackEOL{\#}
+\setstackgap{L}{12pt}
+%%%
+
+\usepackage{amsfonts} % zbiory liczba (np. naturalnych)
+\usepackage{amsmath} %duże klamry
+\usepackage{bbm} %skok jednostkowy
+\usepackage[titletoc,title]{appendix} % dodatki - zmiana wyświetlania nagłówka
+\pagenumbering{gobble}
+\usepackage{afterpage} % pusta strona
+\usepackage{tabularx}
+
+\usepackage{makecell}
+
+%\usepackage{setspace} % interlinia
+%\singlespacing 
+%\onehalfspacing
+%\doublespacing
+%\setstretch{0.96}
+
+\begin{document}
+\pagenumbering{arabic}
+\begin{center}
+\vspace*{3\baselineskip}
+{\LARGE{MOW Projekt 13}}
+\\
+\vspace*{1\baselineskip}
+{\large{Porównanie algorytmów grupowania i klasyfikacji do detekcji anomalii.}}
+\\
+\vspace*{1\baselineskip}
+Katarzyna Piórkowska, 259078 \\
+Tomasz Korzeniowski, 265753 \\
+\vspace*{1\baselineskip}
+\today
+\end{center}
+\section{Zadanie}
+\subsection{Treść}
+Nienadzorowana detekcja anomalii za pomocą odpowiednio opakowanych wybranych algorytmów grupowania dostępnych w R. Porównanie z nadzorowaną detekcją anomalii za pomocą dostępnych w R algorytmów klasyfikacji.
+\subsection{Interpretacja}
+W ramach projektu należy zbadać czy możliwe jest wykrycie anomalii w danych korzystając ze standardowych algorytmów grupowania dostępnych w R. W tym celu należy zapewnić mechanizm generowania modelu grupowania, który zwróci podział danych trenujących na grupy. Następnie, dla każdego nowego przykładu testowego, trzeba ocenić w jakim stopniu jest on podobny do którejś z wyznaczonych grup. Ocena polegać będzie na wyznaczeniu wskaźnika nietypowości, który jest miarą liczbową wskazującą na ile badany przykład jest niepodobny do rozważanych grup.
+
+Do symulowania anomalii w danych przyjmiemy, że jedna z klas w nich występująca (np. najmniej liczna) będzie stanowiła anomalie. Przykłady należące do tej klasy nie zostaną wykorzystane do budowy modelu grupowania.
+
+Częścią implementacji projektu będzie zapewnienie opakowania wybranych algorytmów grupowania w funkcję, która zwraca model pogrupowanych danych trenujących. Użytkownik będzie miał możliwość podania metody grupowania z jakiej chce skorzystać (wraz z jej niezbędnymi parametrami). Inna funkcja będzie miała za zadanie skorzystać z wyznaczonego modelu oraz dopasować dane testowe przez wyznaczenie zadanego wskaźnika nietypowości.
+
+W części analitycznej zostanie przeprowadzona symulacja wykrywania anomalii na kilku zbiorach danych. Wyniki otrzymane przy użyciu zaimplementowanych funkcji zostaną porównane z wynikami uzyskanymi przez zastosowanie znanych algorytmów klasyfikacji dostępnych w R. W tym drugim przypadku algorytmy będą znały klasy do jakich należą obserwacje by wskazać anomalie jako jedną z klas. Porównanie wyników obu podejść będzie polegało na wyznaczeniu wskaźników jakości (dokładności) powyższych rozwiązań.
+
+\section{Algorytmy}
+Do realizacji zadania zostaną wykorzystane trzy algorytmy grupowania (k-średnich, k-medoidów, ) oraz dwa algorytmy klasyfikacji (...). Każdy z nich zostanie pokrótce opisany wraz ze wskazaniem kluczowych parametrów.
+
+\subsection{Algorytm k-średnich}
+Algorytm k-średnich jest jednym z najprostszych algorytmów rozwiązujących zadanie grupowania. Ideą algorytmu jest przyporządkowanie pewnego zbioru \mbox{N przykładów} do przyjętej a priori liczby grup K. Każda grupa posiada dokładnie jeden centroid, czyli punkt reprezentujący wartość średnią grupy. Pojedynczą obserwację $x_{i} = (x_{1}, x_{2},\ldots, x_{N})$ można przyporządkować tylko do jednego z centroidów $c_{j} = (c_{1}, c_{2},\ldots, c_{K})$ Oznacza to minimalizację funkcji: \begin{equation}
+J = \sum_{j=1}^{K}{\sum_{i=1}^{N} {\|x_{i}-c_{j}\|}^{2}}
+\end{equation} Po zakończeniu pojedynczej iteracji grupowania należy uaktualnić położenie centroidów i przyporządkować obserwacje ponownie. Przebieg grupowania przedstawia algorytm \ref{kMeans}.
+\begin{algorithm}[ht]
+\caption{k-średnich}
+\label{kMeans}
+	\begin{algorithmic}%[1]
+	\State{1. Wyznacz początkowe położenie centroidów}
+	\State{2. Przyporządkuj każdej obserwacji najbliższy jej centroid.}
+	\State{3. Gdy wszystkie obserwacje zostaną przyporządkowane, wyznacz ponownie położenie centroidów, znajdując wartość średnią obserwacji przypisanych do centroidu: $$c_{ji}=\frac{1}{M}\sum_{m=1}^{M} {x_{m}} \quad ,gdzie \ M - liczba \ obserwacji \ w \ c_{j}$$}
+	\State{4. Powtarzaj kroki 2. i 3., dopóki centroidy zmieniają swoje położenie lub nie zostanie osiągnięta maksymalna liczba iteracji.}
+	\end{algorithmic}
+\end{algorithm}
+
+Do zalet algorytmu należy proste znajdowanie podziału grup dobrze odseparowanych od siebie. Największą wadą algorytmu jest konieczność podania liczby grup na jakie chcemy podzielić dane. Ponadto początkowe położenie centroidów determinuje wynik grupowania. Algorytm nie radzi sobie również z danymi silnie zaszumionymi i/lub zawierającymi obserwacje odstające (zaburzenie średniej). 
+
+W środowisku R istnieje funkcja \textit{kmeans} w standardowym pakiecie \textit{stats}, która realizuje algorytm k-średnich.
+\begin{verbatim}
+kmeans(x, centers, iter.max = 10, nstart = 1,
+       algorithm = c("Hartigan-Wong", "Lloyd", "Forgy",
+                     "MacQueen"), trace=FALSE)
+\end{verbatim}
+
+Jej główne parametry wejściowe to:
+\begin{table}[ht]
+%\caption{Rejestr zmian}
+\label{etapyProjektu}
+\centering
+\begin{tabularx}{\textwidth}{lcX}
+ x & -- & zbiór danych (numerycznych) do pogrupowania \\
+ centers & -- & wstępne położenie centroidów lub ich liczba oznaczająca na jak wiele grup należy podzielić dane \\
+ iter.max & -- & maksymalna liczba iteracji algorytmu, warunek stopu\\
+\end{tabularx}
+\end{table}
+
+Pozostałe parametry związane są z wewnętrzną implementacją algorytmu w pakiecie R i nie będą rozpatrywane w ramach projektu. Wynikiem działania algorytmu jest model zawierający wektor przyporządkowania obserwacji do grup, środki wyznaczonych grup oraz pomocnicze miary (suma kwadratów odległości między przykładami w grupie, liczność grup, liczba wykonanych iteracji)
+
+\subsection{Algorytm k-medoidów}
+Struktura algorytmu k-medoidów jest niemal taka sama jak algorytmu k-średnich. Jedną różnicą jest przyjęcie, że środkiem grupy jest medoid, a nie wartość średnia. Medoid jest najbardziej centralnym przykładem w grupie (średnia grupy może się nie pokrywać z żadnym przykładem należącym do wyznaczonej grupy). Powoduje to uodpornienie algorytmu na wartości odstające.
+
+Aby wybrać nowy medoid, w kolejnych iteracjach algorytmu, rozważane są wszystkie przykłady $p$. Istnieją 4 możliwe przypadki, które należy sprawdzić by stwierdzić czy przykład $p$ (niebędący medoidem) może zastąpić medoid $m$:
+
+\begin{enumerate}
+\item Przykład $a$ należy do grupy medoidu $m$ -- jeśli zastąpimy $m$ przykładem $p$ oraz $a$ znajduje się bliżej medoidu $n$ to przydziel $a$ do grupy $n$.
+\item Przykład $a$ należy do grupy medoidu $m$ -- jeśli zastąpimy $m$ przykładem $p$ oraz $a$ znajduje się bliżej przykładu $p$ to przydziel $a$ do nowego medoidu $p$.
+\item Przykład $a$ należy do grupy medoidu $n$ -- jeśli zastąpimy medoid $m$ przykładem $p$ oraz $a$ znajduje się bliżej medoidu $n$ to nie zmieniaj przydziału przykładu $a$.
+\item Przykład $a$ należy do grupy medoidu $n$ -- jeśli zastąpimy medoid $m$ przykładem $p$ oraz $a$ znajduje się bliżej $p$ to przydziel $a$ do nowego medoidu $p$.
+\end{enumerate}
+
+Powyższe możliwości ilustruje wykres \ref{kMedoidsSwap}.
+
+\begin{figure}[ht]
+%\vspace{-20pt}
+\centering
+\includegraphics[height=3cm, width=15.7cm]{kMedoids2}
+\caption{Przypadki zamiany medoidu $m$ przykładem $p$.}
+\label{kMedoidsSwap}
+\end{figure}
+
+Przebieg grupowania przedstawia algorytm \ref{kMedoids}.
+
+\begin{algorithm}[ht]
+\caption{k-medoidów}
+\label{kMedoids}
+	\begin{algorithmic}%[1]
+	\State{1. Wybierz $K$ przykładów jako medoidy.}
+	\State{2. Przyporządkuj każdej obserwacji najbliższy jej medoid.}
+	\State{3. Dla każdego medoidu $m$ wybierz inny przykład $p$, który zmniejszy odległość między przykładami w obrębie nowej grupy.}
+	\State{4. Powtarzaj kroki 2. i 3., dopóki medoidy zmieniają się lub nie zostanie osiągnięta maksymalna liczba iteracji.}
+	\end{algorithmic}
+\end{algorithm}
+
+W języku R istnieje algorytm $pam$ (ang. partitioning around medoids) w pakiecie cluster, który implementuje algorytm k-medoidów.
+
+\begin{verbatim}
+pam(x, k, diss = inherits(x, "dist"), metric = "euclidean",
+    medoids = NULL, stand = FALSE, cluster.only = FALSE,
+    do.swap = TRUE,
+    keep.diss = !diss && !cluster.only && n < 100,
+    keep.data = !diss && !cluster.only,
+    pamonce = FALSE, trace.lev = 0)
+\end{verbatim} 
+
+(opis parametrów wejściowych i wyjściowych)
+
+\subsection{Algorytm hierarchiczny}
+hclust chyba kiepski do interpretacji wyników, może diana/agnes?
+\subsection{Klasyfikacja 1}
+\subsection{Klasyfikacja 2}
+\section{Opis badań}
+\subsection{Planowane eksperymenty}
+dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
+
+miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
+\begin{equation}
+CBLOF(p) = \begin{cases}
+   |C_{i}| \cdot min(d(p,C_{j})), & \text{jeśli}\ C_{i} \in SC \text{, gdzie } p \in C_{i} \text{ oraz } C_{j} \in LC\\
+    |C_{i}| \cdot d(p,C_{j}), & \text{jeśli}\ C_{i} \in LC \text{, gdzie } p \in C_{i}
+  \end{cases}
+\end{equation}
+
+\begin{equation}
+u-CBLOF(p) = \begin{cases}
+   min(d(p,C_{j})), & \text{jeśli}\ p \in SC \text{, gdzie } C_{j} \in LC\\
+    d(p,C_{i}), & \text{jeśli}\ p \in C_{i} \in LC
+  \end{cases}
+\end{equation}
+
+\begin{equation}
+distance_{avg}(C) = \frac{\sum_{i \in C} d(i,C)}{|C|}
+\end{equation}
+
+\begin{equation}
+LDCOF(p) = \begin{cases}
+   \frac{min(d(p,C_{j}))}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in SC \text{, gdzie } C_{j} \in LC\\
+    \frac{d(p,C_{j})}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in LC
+  \end{cases}
+\end{equation}
+
+czas wykonania?
+
+\subsection{Zbiory danych}
+wybór atrybutów przed dokonaniem grupowania (możliwe ograniczenie do mniejszego podzbioru z uzasadnieniem), wstępne przetwarzanie (funkcje tworzące model i klasyfikujące nie muszą same robić przekształceń)
+
+atrybuty brakujące (NA) - sposób w jaki będziemy sobie z nimi radzić
+
+decyzja o atrybucie klasy (np. ostatni atrybut)
+
+przekształcenie na dane numeryczne już we własnej funkcji
+
+opis wybranych zbiorów danych
+\subsection{Dobór parametrów algorytmów}
+które parametry będą znaczące opisane jest razem z algorytmami - co R przyjmuje i co głównie będziemy mu podawać, więc chyba nie ma sensu powtarzać (ewentualnie wyciągnąć wszystkie te parametry do tego podrozdziału)
+
+raczej będziemy robić na standardowych parametrach, chyba, że sprawdzimy wcześniej, że któreś parametry dają lepsze wyniki i zastosujemy do nich konkretnie (uwzględniamy, że testy będą tylko na pewnych, wybranych danych)
+
+co do parametrów, które będziemy podawać można napisać jakieś założenia ewentualnie
+\subsection{Ocena jakości}
+confusion matrix + podstawowe miary dokładności (accuracy, precision)
+\section{Kwestie otwarte}
+...
+
+\begin{thebibliography}{9}
+%\addcontentsline{toc}{section}{Literatura}
+%\bibitem{BOCD}
+%Z. Michalewicz, D. B. Fogel
+%\emph{Jak to rozwiązać czyli nowoczesna heurystyka}.
+%WNT, Warszawa 2006
+\bibitem{k-methods}
+\url{http://wazniak.mimuw.edu.pl/images/8/86/ED-4.2-m11-1.01.pdf}
+
+
+%\bibitem{knapsack2}
+%\url{http://pe.org.pl/articles/2014/6/37.pdf}
+%\bibitem{knapsack3}
+%\url{http://home.agh.edu.pl/~slukasik/pub/021_Lukasik_KAEiOG2011(presentation).pdf}
+%\bibitem{knapsack4}
+%\url{https://eti.pg.edu.pl/documents/176546/25263566/SZ_wyklad2.pdf}
+
+\end{thebibliography}
+
+\end{document}
