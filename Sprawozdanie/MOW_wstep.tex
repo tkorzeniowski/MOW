@@ -211,9 +211,116 @@ pam(x, k, diss = inherits(x, "dist"), metric = "euclidean",
 (opis parametrów wejściowych i wyjściowych)
 
 \subsection{Algorytm hierarchiczny}
-hclust chyba kiepski do interpretacji wyników, może diana/agnes?
-\subsection{Klasyfikacja 1}
-\subsection{Klasyfikacja 2}
+Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz deglomeracyjne - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
+
+\begin{algorithm}[ht]
+\caption{hierarchiczny}
+\label{hierarch}
+	\begin{algorithmic}
+	\State{1. Utwórz jednoelementowe grupy.}
+	\State{2. Zbuduj macierz odległości pomiędzy rozpatrywanymi elementami.}
+	\State{3. Znajdź parę elementów, między którymi odległość jest najmniejsza.}
+	\State{4. Połącz znalezione grupy w jedną i wyznacz ich nowy środek ciężkości jako średnią środków cieżkości grup składowych.}
+	\State{5. Powtarzaj kroki 2-4 aż do uzyskania jednego skupiska zawierającego wszystkie próbki.}
+	\end{algorithmic}
+\end{algorithm}
+
+Do zalet algorytmów hierarchicznych należy brak konieczności początkowego określenia liczby klas w przeciwieństwie do opisanych wyżej algorytmów k-średnich i k-medoidów. Do wad można zaliczyć dość duże zróżnicowanie wyników w zależności od wybranych metod łączenia grup, wśród których znajdują się m.in. metody najbliższych i najdalszych sąsiadów, metoda średnich (centroidów) oraz minimalnej wariancji Warda.
+
+Algorytmem aglomeracyjnym dostępnym w języku R jest agnes (ang. agglomerative nesting) w pakiecie cluster.
+
+\begin{verbatim}
+agnes(x, diss = inherits(x, "dist"), metric = "euclidean",
+      stand = FALSE, method = "average", par.method,
+      keep.diss = n < 100, keep.data = !diss, trace.lev = 0)
+\end{verbatim} 
+
+Jego najważniejsze parametry wejściowe to:
+
+\begin{table}[ht]
+\label{agnes_params}
+\centering
+\begin{tabularx}{\textwidth}{lcX}
+ x & -- & zbiór danych (numerycznych) do pogrupowania \\
+metric & -- & metryka, według której obliczana jest odległość \\
+method & -- & metoda łączenia grup\\
+\end{tabularx}
+\end{table}
+
+Wynikiem działania algorytmu jest graficzna reprezentacja struktury grupowania - dendrogram. Ponadto obliczany jest współczynnik aglomeracji, który charakteryzuje wygląd dendrogramu: niski współczynnik oznacza węższe struktury.
+
+\subsection{Drzewa decyzyjne}
+
+Pierwszą z metod klasyfikacji stosowaną w celu porównania z algorytmami grupowania są drzewa decyzyjne. W języku R istnieje wiele jej implementacji, z których wykorzystany zostanie algorytm C4.5 przedstawiony poniżej.
+
+\begin{algorithm}[ht]
+\caption{Algorytm C4.5}
+\label{decision_tree}
+	\begin{algorithmic}
+	\State{1. Utwórz zbiór treningowy T.}
+	\State{2. Wybierz taki atrybut, który najlepiej różnicowałby przykłady ze zbioru T.}
+	\State{3. Utwórz węzeł drzewa odpowiadający wybranemu atrybutowi.}
+	\State{4. Do węzła dodaj podwęzły, z których każdy reprezentuje pewną wartość badanego atrybutu.}
+	\State{5. Powtarzaj podziały dla kolejnych podwęzłów.}
+	\end{algorithmic}
+\end{algorithm}
+
+Do niewątpliwych zalet drzew decyzyjnych należy czytelna forma reprezentacji, efektywność pamięciowa oraz wszechstronność metody. Konieczny jest w niej jednak kompromis pomiędzy wielkością drzewa a jakością klasyfikacji. Drzewa mogą być również podatne na zjawisko nadmiernego dopasowania.
+
+Wykorzystaną w projekcie funkcją będzie J48 z pakietu RWeka.
+
+\begin{verbatim}
+J48(formula, data, subset, na.action,
+    control = Weka_control(), options = NULL)
+\end{verbatim} 
+
+Jego najważniejsze parametry wejściowe to:
+
+\begin{table}[ht]
+\label{j48_params}
+\centering
+\begin{tabularx}{\textwidth}{lcX}
+formula & -- & symboliczny opis modelu \\
+data & -- & dane treningowe \\
+\end{tabularx}
+\end{table}
+
+Wynikiem działania funkcji jest schemat drzewa decyzyjnego wraz z opisem jego węzłów oraz dane o jego wielkości.
+
+\subsection{Metoda k najbliższych sąsiadów}
+
+Metoda k najbliższych sąsiadów zaliczana jest do grupy algorytmów tzw. leniwego uczenia. Nie tworzy ona żadnej reprezentacji danych w postaci modelu, a szuka rozwiązania dopiero w momencie pojawienia się przykładu do klasyfikacji. Aby zastosować metodę najbliższego sąsiada konieczne jest przedstawienie obiektów w n-wymiarowej przestrzeni po czym umieszczenie w niej obiektu testowanego. Klasyfikacja sprowadza się do sprawdzenia, do jakiej klasy należy obiekt najbliższy obiektowi testowanemu. Jeżeli wybrany został wariant metody z k sąsiadów to najpierw konieczne jest rozstrzygnięcie, która klasa dominuje wśród nich.
+
+\begin{algorithm}[ht]
+\caption{Algorytm k najbliższych sąsiadów}
+\label{kNN}
+	\begin{algorithmic}
+	\State{1. Oblicz odległości klasyfikowanego przykładu od przykładów ze zbioru treningowego.}
+	\State{2. Znajdź k najbliższych sąsiadów.}
+	\State{3. Sklasyfikuj przykład na podstawie klas sąsiadów.}
+	\end{algorithmic}
+\end{algorithm}
+
+Podstawową zaletą algorytmu kNN jest jego prostota. Ma on jednak szereg wad, do których należy długi czas obliczeń w przypadku licznych zbiorów treningowych, duże wymagi pamięciowe oraz konieczność wstępnej normalizacji danych. Język R oferuje tutaj funkcję kNN.
+
+\begin{verbatim}
+knn(train, test, cl, k = 1, prob = FALSE, 
+algorithm=c("kd_tree", "cover_tree", "brute"))
+\end{verbatim} 
+
+Jego najważniejsze parametry wejściowe to:
+
+\begin{table}[ht]
+\label{kNN_params}
+\centering
+\begin{tabularx}{\textwidth}{lcX}
+train & -- & zbiór trenujący \\
+test & -- & testowany przykład \\
+k & -- & liczba sąsiadów \\
+\end{tabularx}
+\end{table}
+
+
 \section{Opis badań}
 \subsection{Planowane eksperymenty}
 dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
