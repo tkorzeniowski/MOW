@@ -46,3 +46,33 @@ pokemonKmeans <- kmeans(as.matrix(data[1:1000,]), k, iter.max = 20)
 plot(data[1:1000,], col = pokemonKmeans$cluster)
 
 
+
+
+
+
+
+
+
+
+
+
+#########################################
+data <- matrix(0, 10, 3)
+colnames(data) <- c('p', 'd', 't')
+data[1:5,1] <- runif(5, 1, 10)
+data[6:10,1] <- runif(5, 15, 30)
+data[1:5,2] <- runif(5, 1, 10)
+data[6:10,2] <- runif(5, 15, 30)
+data[1:5,3] <- 5
+data[6:10,3] <- 2
+
+agn1 <- agnes(data[,1:2], metric = "manhattan", stand = TRUE)
+agn1Class <- cutree(agn1, k=2)
+
+hcl <- hclust(dist(data[,1:2]), method = "centroid")
+hclClass <- cutree(hcl, k=2)
+hcl$labels
+plot(hcl)
+
+
+knnAlg <- knn(data[c(1,2,3,6,7,8),1:2], data[c(4,5,9,10),1:2], data[c(1,2,3,6,7,8),3])

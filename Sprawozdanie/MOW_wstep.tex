@@ -211,7 +211,7 @@ pam(x, k, diss = inherits(x, "dist"), metric = "euclidean",
 (opis parametrów wejściowych i wyjściowych)
 
 \subsection{Algorytm hierarchiczny}
-Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz deglomeracyjne - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
+Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz partycjonujące - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
 
 \begin{algorithm}[ht]
 \caption{hierarchiczny}
@@ -363,16 +363,41 @@ decyzja o atrybucie klasy (np. ostatni atrybut)
 przekształcenie na dane numeryczne już we własnej funkcji
 
 opis wybranych zbiorów danych
-\subsection{Dobór parametrów algorytmów}
-które parametry będą znaczące opisane jest razem z algorytmami - co R przyjmuje i co głównie będziemy mu podawać, więc chyba nie ma sensu powtarzać (ewentualnie wyciągnąć wszystkie te parametry do tego podrozdziału)
 
-raczej będziemy robić na standardowych parametrach, chyba, że sprawdzimy wcześniej, że któreś parametry dają lepsze wyniki i zastosujemy do nich konkretnie (uwzględniamy, że testy będą tylko na pewnych, wybranych danych)
-
-co do parametrów, które będziemy podawać można napisać jakieś założenia ewentualnie
 \subsection{Ocena jakości}
-confusion matrix + podstawowe miary dokładności (accuracy, precision)
+Aby ocenić jakość rozwiązania trzeba sprawdzić skuteczność algorytmów. Do tego budowana będzie macierz pomyłek. W jej wierszach znajdują się klasy oryginalne do których należały obiekty, a w kolumnach klasy przewidziane. Na przecięciu wstawiana jest liczba obiektów poprawnie lub niepoprawnie sklasyfikowanych. 
+
+W przypadku binarnym rozważmy dwie klasy: pozytywną i negatywną. Do klasy pozytywnej będziemy zaliczali wszystkie przykłady zaliczone do swoich prawdziwych grup, a do klasy negatywnej obserwacje stanowiące anomalie. W sytuacji, gdy pewna pozytywna obserwacja zostanie zaklasyfikowana jako negatywna lub odwrotnie, korzystamy z tabeli \ref{confusionMatrix}. Przynależność do klasy rzeczywistej oznacza faktyczną klasyfikację obserwacji do jednej z klas, a wynik klasyfikacji to decyzja o przynależności podjęta przez algorytm. Możliwe wyniki to:
+\begin{itemize}[label={--}]
+\item TP (ang. \emph{true positive}) -- poprawne zaklasyfikowanie do rzeczywistej grupy
+\item FN (ang. \emph{false negative}) -- błędne zaklasyfikowanie przykładu (jako anomalii) do klasy negatywnej, gdy tak naprawdę należy do jednej ze znalezionych grup
+\item FP (ang. \emph{false positive}) -- błędne zaklasyfikowanie obserwacji (do jednej ze znalezionych grup) do klasy pozytywnej, gdy tak naprawdę są to anomalie
+\item TN (ang. \emph{true negative}) -- poprawne wykrycie anomalii
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\caption{Macierz pomyłek}
+\label{confusionMatrix}
+\begin{tabular}{|*{4}{c|}}
+\cline{3-4}
+  \multicolumn{2}{c}{} & \multicolumn{2}{|c|}{wynik klasyfikacji}\\\cline{3-4}
+  \multicolumn{2}{c|}{} & pozytywna & negatywna\\\hline
+  \multirow{2}{*}{klasa rzeczywista}& pozytywna & TP & FN\\\cline{2-4}
+  & negatywna & FP & TN\\\hline
+\end{tabular}
+\end{table}
+
+Na tej podstawie można wyznaczyć wskaźniki jakości rozwiązania:
+\begin{itemize}[label={--}]
+\item dokładność -- liczba poprawnie sklasyfikowanych obserwacji wśród wszystkich wyników klasyfikacji $$\text{\emph{dokładność}} = \frac{TP+TN}{TP+TN+FP+FN}$$
+\item precyzja -- liczba poprawnie sklasyfikowanych przykładów wśród wszystkich obserwacji zaklasyfikowanych do znalezionych grup $$\text{\emph{precyzja}} = \frac{TP}{TP+FP}$$
+\end{itemize}
+
 \section{Kwestie otwarte}
-...
+W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych parametrów algorytmów, które nie są bezpośrednio związane z zadaniem (np. wybór implementacji algorytmu k-średnich w ramach funkcji \textit{kmeans}). Jeśli podczas testów okaże się, że pewne parametry nieomówione powyżej będą zmieniane, zostanie podana stosowna adnotacja.
+
+Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. W sytuacji gdy wskaźniki te nie będą w stanie wystarczająco jednoznacznie wyznaczyć, które z rozwiązań jest lepsze, zostaną rozważone i opisane inne miary jakości.
 
 \begin{thebibliography}{9}
 %\addcontentsline{toc}{section}{Literatura}
@@ -382,10 +407,9 @@ confusion matrix + podstawowe miary dokładności (accuracy, precision)
 %WNT, Warszawa 2006
 \bibitem{k-methods}
 \url{http://wazniak.mimuw.edu.pl/images/8/86/ED-4.2-m11-1.01.pdf}
+\bibitem{miaryNietypowosci}
+\url{https://www.goldiges.de/publications/Anomaly_Detection_Algorithms_for_RapidMiner.pdf}
 
-
-%\bibitem{knapsack2}
-%\url{http://pe.org.pl/articles/2014/6/37.pdf}
 %\bibitem{knapsack3}
 %\url{http://home.agh.edu.pl/~slukasik/pub/021_Lukasik_KAEiOG2011(presentation).pdf}
 %\bibitem{knapsack4}
