@@ -211,7 +211,7 @@ pam(x, k, diss = inherits(x, "dist"), metric = "euclidean",
 (opis parametrów wejściowych i wyjściowych)
 
 \subsection{Algorytm hierarchiczny}
-Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz partycjonujące - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
+Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz deglomeracyjne - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
 
 \begin{algorithm}[ht]
 \caption{hierarchiczny}
@@ -323,33 +323,24 @@ k & -- & liczba sąsiadów \\
 
 \section{Opis badań}
 \subsection{Planowane eksperymenty}
+
+Po zbudowaniu modelu na podstawie zbioru trenującego przeprowadzone zostaną następujące eksperymenty:
+
+\begin{enumerate}
+  \item detekcja anomalii przy wykorzystaniu zaimplementowanego algorytmu dla różnych metod grupowania,
+  \item klasyfikacja za pomocą metody drzew decyzyjnych,
+  \item klasyfikacja za pomocą metody k najbliższych sąsiadów.
+\end{enumerate}
+
+Celem analizy wyników jest stwierdzenie, która z metod jest najbardziej odpowiednia dla badanych zbiorów danych. 
+
+
 dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
 
-miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
-\begin{equation}
-CBLOF(p) = \begin{cases}
-   |C_{i}| \cdot min(d(p,C_{j})), & \text{jeśli}\ C_{i} \in SC \text{, gdzie } p \in C_{i} \text{ oraz } C_{j} \in LC\\
-    |C_{i}| \cdot d(p,C_{j}), & \text{jeśli}\ C_{i} \in LC \text{, gdzie } p \in C_{i}
-  \end{cases}
-\end{equation}
+%miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
 
-\begin{equation}
-u-CBLOF(p) = \begin{cases}
-   min(d(p,C_{j})), & \text{jeśli}\ p \in SC \text{, gdzie } C_{j} \in LC\\
-    d(p,C_{i}), & \text{jeśli}\ p \in C_{i} \in LC
-  \end{cases}
-\end{equation}
 
-\begin{equation}
-distance_{avg}(C) = \frac{\sum_{i \in C} d(i,C)}{|C|}
-\end{equation}
 
-\begin{equation}
-LDCOF(p) = \begin{cases}
-   \frac{min(d(p,C_{j}))}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in SC \text{, gdzie } C_{j} \in LC\\
-    \frac{d(p,C_{j})}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in LC
-  \end{cases}
-\end{equation}
 
 czas wykonania?
 
@@ -363,41 +354,68 @@ decyzja o atrybucie klasy (np. ostatni atrybut)
 przekształcenie na dane numeryczne już we własnej funkcji
 
 opis wybranych zbiorów danych
+\subsection{Dobór parametrów algorytmów}
+które parametry będą znaczące opisane jest razem z algorytmami - co R przyjmuje i co głównie będziemy mu podawać, więc chyba nie ma sensu powtarzać (ewentualnie wyciągnąć wszystkie te parametry do tego podrozdziału)
 
+raczej będziemy robić na standardowych parametrach, chyba, że sprawdzimy wcześniej, że któreś parametry dają lepsze wyniki i zastosujemy do nich konkretnie (uwzględniamy, że testy będą tylko na pewnych, wybranych danych)
+
+co do parametrów, które będziemy podawać można napisać jakieś założenia ewentualnie
 \subsection{Ocena jakości}
-Aby ocenić jakość rozwiązania trzeba sprawdzić skuteczność algorytmów. Do tego budowana będzie macierz pomyłek. W jej wierszach znajdują się klasy oryginalne do których należały obiekty, a w kolumnach klasy przewidziane. Na przecięciu wstawiana jest liczba obiektów poprawnie lub niepoprawnie sklasyfikowanych. 
 
-W przypadku binarnym rozważmy dwie klasy: pozytywną i negatywną. Do klasy pozytywnej będziemy zaliczali wszystkie przykłady zaliczone do swoich prawdziwych grup, a do klasy negatywnej obserwacje stanowiące anomalie. W sytuacji, gdy pewna pozytywna obserwacja zostanie zaklasyfikowana jako negatywna lub odwrotnie, korzystamy z tabeli \ref{confusionMatrix}. Przynależność do klasy rzeczywistej oznacza faktyczną klasyfikację obserwacji do jednej z klas, a wynik klasyfikacji to decyzja o przynależności podjęta przez algorytm. Możliwe wyniki to:
-\begin{itemize}[label={--}]
-\item TP (ang. \emph{true positive}) -- poprawne zaklasyfikowanie do rzeczywistej grupy
-\item FN (ang. \emph{false negative}) -- błędne zaklasyfikowanie przykładu (jako anomalii) do klasy negatywnej, gdy tak naprawdę należy do jednej ze znalezionych grup
-\item FP (ang. \emph{false positive}) -- błędne zaklasyfikowanie obserwacji (do jednej ze znalezionych grup) do klasy pozytywnej, gdy tak naprawdę są to anomalie
-\item TN (ang. \emph{true negative}) -- poprawne wykrycie anomalii
-\end{itemize}
+% Opis oceny anomalii dałabym w tym podpunkcie
 
-\begin{table}[ht]
+W celu oceny algorytmu detekcji anomalii konieczne jest użycie niestandardowych wskaźników, które nie tylko swierdzą obecność anomalii, ale również określą jej wlaściwości. Pierwszym z proponowanych wskaźników jest CBLOF liczony jako iloczyn odległości badanej probki od najbliższej dużej grupy a liczbą elementów w grupie, do której obiekt został zaklasyfikowany. Koncepcja małych i dużych grup nie jest precyzyjnie określona - możliwy jest wybór algorytmu podziału.
+
+\begin{equation}
+CBLOF(p) = \begin{cases}
+   |C_{i}| \cdot min(d(p,C_{j})), & \text{jeśli}\ C_{i} \in SC \text{, gdzie } p \in C_{i} \text{ oraz } C_{j} \in LC\\
+    |C_{i}| \cdot d(p,C_{j}), & \text{jeśli}\ C_{i} \in LC \text{, gdzie } p \in C_{i}
+  \end{cases}
+\end{equation}
+
+Wskaźnik ten powinien rosnąć wraz z odległością próbki od dużej grupy, a zatem wskazywać na stopień anomali - im wyższa jego wartość, tym obiekt bardziej oddalony od grup. Jednak ze względu na fakt, że uwzględniana jest w nim również liczność grupy algorytm ten może dawać nieprawidłowe wyniki. Jako anomalie mogą zostać zaklasyfikowane próbki znajdujące się blisko bardzo licznych zbiorów.
+
+Lepszym rozwiązaniem będzie zatem być może nieważony wskaźnik CBLOF oparty jedynie na odległości od grup, z pominięciem ich liczności. W projekcie zostaną zastosowane obie wersje ocen anaomalii i wykonane zostanie porównanie między nimi.
+
+\begin{equation}
+u-CBLOF(p) = \begin{cases}
+   min(d(p,C_{j})), & \text{jeśli}\ p \in SC \text{, gdzie } C_{j} \in LC\\
+    d(p,C_{i}), & \text{jeśli}\ p \in C_{i} \in LC
+  \end{cases}
+\end{equation}
+
+Inną miarą oceny anomalii jest LDCOF charakteryzująca się normalizacją wyników dla próbki względem jej sąsiedztwa. Definiowana jest jako iloraz odległości próbki od najbliższej dużej grupy i średniego dystansu między elementami tej dużej grupy i jej środkiem.
+
+\begin{equation}
+distance_{avg}(C) = \frac{\sum_{i \in C} d(i,C)}{|C|}
+\end{equation}
+
+\begin{equation}
+LDCOF(p) = \begin{cases}
+   \frac{min(d(p,C_{j}))}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in SC \text{, gdzie } C_{j} \in LC\\
+    \frac{d(p,C_{j})}{distance_{avg}(C_{j}}, & \text{jeśli}\ p \in C_{i} \in LC
+  \end{cases}
+\end{equation}
+
+
+W celu oceny jakości klasyfikacji za pomocą metod drzew decyzyjnych oraz k najbliższych sąsiadów wyznaczone zostaną macierze pomyłek.
+
+
+\begin{figure}[ht]
+%\vspace{-20pt}
 \centering
-\caption{Macierz pomyłek}
-\label{confusionMatrix}
-\begin{tabular}{|*{4}{c|}}
-\cline{3-4}
-  \multicolumn{2}{c}{} & \multicolumn{2}{|c|}{wynik klasyfikacji}\\\cline{3-4}
-  \multicolumn{2}{c|}{} & pozytywna & negatywna\\\hline
-  \multirow{2}{*}{klasa rzeczywista}& pozytywna & TP & FN\\\cline{2-4}
-  & negatywna & FP & TN\\\hline
-\end{tabular}
-\end{table}
+\includegraphics[width=50mm,scale=0.5]{conf_matrix}
+\caption{Szablon binarnej macierzy pomyłek.}
+\label{conf_matrixp}
+\end{figure}
 
-Na tej podstawie można wyznaczyć wskaźniki jakości rozwiązania:
-\begin{itemize}[label={--}]
-\item dokładność -- liczba poprawnie sklasyfikowanych obserwacji wśród wszystkich wyników klasyfikacji $$\text{\emph{dokładność}} = \frac{TP+TN}{TP+TN+FP+FN}$$
-\item precyzja -- liczba poprawnie sklasyfikowanych przykładów wśród wszystkich obserwacji zaklasyfikowanych do znalezionych grup $$\text{\emph{precyzja}} = \frac{TP}{TP+FP}$$
-\end{itemize}
+
+confusion matrix + podstawowe miary dokładności (accuracy, precision)
+
+
 
 \section{Kwestie otwarte}
-W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych parametrów algorytmów, które nie są bezpośrednio związane z zadaniem (np. wybór implementacji algorytmu k-średnich w ramach funkcji \textit{kmeans}). Jeśli podczas testów okaże się, że pewne parametry nieomówione powyżej będą zmieniane, zostanie podana stosowna adnotacja.
-
-Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. W sytuacji gdy wskaźniki te nie będą w stanie wystarczająco jednoznacznie wyznaczyć, które z rozwiązań jest lepsze, zostaną rozważone i opisane inne miary jakości.
+...
 
 \begin{thebibliography}{9}
 %\addcontentsline{toc}{section}{Literatura}
@@ -407,9 +425,14 @@ Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precy
 %WNT, Warszawa 2006
 \bibitem{k-methods}
 \url{http://wazniak.mimuw.edu.pl/images/8/86/ED-4.2-m11-1.01.pdf}
-\bibitem{miaryNietypowosci}
+
+\bibitem{anomaly_det}
 \url{https://www.goldiges.de/publications/Anomaly_Detection_Algorithms_for_RapidMiner.pdf}
 
+\bibitem{conf_matrix}
+\url{https://rasbt.github.io/mlxtend/user_guide/evaluate/confusion_matrix/}
+%\bibitem{knapsack2}
+%\url{http://pe.org.pl/articles/2014/6/37.pdf}
 %\bibitem{knapsack3}
 %\url{http://home.agh.edu.pl/~slukasik/pub/021_Lukasik_KAEiOG2011(presentation).pdf}
 %\bibitem{knapsack4}
