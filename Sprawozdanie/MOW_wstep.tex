@@ -323,9 +323,19 @@ k & -- & liczba sąsiadów \\
 
 \section{Opis badań}
 \subsection{Planowane eksperymenty}
-dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
 
-miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
+W projekcie przeprowadzone zostaną następujące eksperymenty:
+
+\begin{enumerate}
+  \item detekcja anomalii przy wykorzystaniu zaimplementowanego algorytmu dla różnych metod grupowania,
+  \item klasyfikacja za pomocą metody drzew decyzyjnych,
+  \item klasyfikacja za pomocą metody k najbliższych sąsiadów.
+\end{enumerate}
+
+%dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
+%miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
+
+W celu oceny anomalii konieczne jest użycie niestandardowych wskaźników, które nie tylko swierdzą ich obecność, ale również określą ich właściwości. Pierwszym z proponowanych wskaźników jest CBLOF liczony jako iloczyn odległości badanej probki od najbliższej dużej grupy i liczby elementów w grupie, do której obiekt został zaklasyfikowany. Koncepcja małych i dużych grup nie jest precyzyjnie określona - możliwy jest wybór algorytmu podziału.
 \begin{equation}
 CBLOF(p) = \begin{cases}
    |C_{i}| \cdot min(d(p,C_{j})), & \text{jeśli}\ C_{i} \in SC \text{, gdzie } p \in C_{i} \text{ oraz } C_{j} \in LC\\
@@ -333,12 +343,18 @@ CBLOF(p) = \begin{cases}
   \end{cases}
 \end{equation}
 
+Wskaźnik ten powinien rosnąć wraz z odległością próbki od dużej grupy, a zatem wskazywać na stopień anomali - im wyższa jego wartość, tym obiekt bardziej oddalony od grup. Jednak ze względu na fakt, że uwzględniana jest w nim również liczność grupy algorytm ten może dawać nieprawidłowe wyniki. Jako anomalie mogą zostać zaklasyfikowane próbki znajdujące się blisko bardzo licznych zbiorów.
+
+Lepszym rozwiązaniem będzie zatem być może nieważony wskaźnik CBLOF oparty jedynie na odległości od grup, z pominięciem ich liczności. W projekcie zostaną zastosowane obie wersje ocen anomalii i wykonane zostanie porównanie między nimi.
+
 \begin{equation}
 u-CBLOF(p) = \begin{cases}
    min(d(p,C_{j})), & \text{jeśli}\ p \in SC \text{, gdzie } C_{j} \in LC\\
     d(p,C_{i}), & \text{jeśli}\ p \in C_{i} \in LC
   \end{cases}
 \end{equation}
+
+Inną miarą oceny anomalii jest LDCOF charakteryzująca się normalizacją wyników dla próbki względem jej sąsiedztwa. Definiowana jest jako iloraz odległości próbki od najbliższej dużej grupy i średniego dystansu między elementami tej dużej grupy i jej środkiem.
 
 \begin{equation}
 distance_{avg}(C) = \frac{\sum_{i \in C} d(i,C)}{|C|}
@@ -351,18 +367,28 @@ LDCOF(p) = \begin{cases}
   \end{cases}
 \end{equation}
 
-czas wykonania?
+%czas wykonania?
 
 \subsection{Zbiory danych}
-wybór atrybutów przed dokonaniem grupowania (możliwe ograniczenie do mniejszego podzbioru z uzasadnieniem), wstępne przetwarzanie (funkcje tworzące model i klasyfikujące nie muszą same robić przekształceń)
+%wybór atrybutów przed dokonaniem grupowania (możliwe ograniczenie do mniejszego podzbioru z uzasadnieniem), wstępne%przetwarzanie (funkcje tworzące model i klasyfikujące nie muszą same robić przekształceń)
+%atrybuty brakujące (NA) - sposób w jaki będziemy sobie z nimi radzić
+%decyzja o atrybucie klasy (np. ostatni atrybut)
+%przekształcenie na dane numeryczne już we własnej funkcji
+%opis wybranych zbiorów danych
 
-atrybuty brakujące (NA) - sposób w jaki będziemy sobie z nimi radzić
+Badania przeprowadzone zostaną na kilku zbiorach danych o numerycznych typach atrybutów. Wstępne ich przetwarzanie będzie różnić się w zależności od etapu projektu. W przypadku grupowania możliwe będzie ograniczenie liczby wykorzystanych atrybutów. Klasyfikator k najbliższych sąsiadów będzie z kolei prawdopodobnie wymagał normalizacji danych. 
 
-decyzja o atrybucie klasy (np. ostatni atrybut)
+Dla wszystkich zbiorów danych konieczne będzie określenie sposobu postępowania z brakującymi wartościami. W przypadku pojedynczych braków pewne próbki zostaną najprawdopodobniej pominięte lub też zastąpione średnią wartością artybutu. Jeżeli brakujących wartości byłoby więcej, lepsze wyniki dałaby predykcja danej wartości.
 
-przekształcenie na dane numeryczne już we własnej funkcji
-
-opis wybranych zbiorów danych
+Wykorzystane zostaną przykładowe zbiory danych pochodzące z UCI Machine Learning Repository:
+\begin{itemize}
+  \item Dataset for Sensorless Drive Diagnosis Data Set - zbiór danych diagnostycznych dla napędów komputerowych,
+  \item Gas sensor array under dynamic gas mixtures Data Set - zbiór danych z sensorów chemicznych,
+  \item Grammatical Facial Expressions Data Set - zbiór służący interpretacji mimiki na podstawie języka migowego,
+  \item Image Segmentation Data Set - segmentacja obrazów,
+  \item Mice Protein Expression Data Set - ekspresja białek mierzona w korze mózgu myszy,
+  \item TV News Channel Commercial Detection Dataset Data Set - zbiór cech audiowizualnych reklam.
+\end{itemize}
 
 \subsection{Ocena jakości}
 Aby ocenić jakość rozwiązania trzeba sprawdzić skuteczność algorytmów. Do tego budowana będzie macierz pomyłek. W jej wierszach znajdują się klasy oryginalne do których należały obiekty, a w kolumnach klasy przewidziane. Na przecięciu wstawiana jest liczba obiektów poprawnie lub niepoprawnie sklasyfikowanych. 
