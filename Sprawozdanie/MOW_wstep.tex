@@ -122,7 +122,7 @@ Częścią implementacji projektu będzie zapewnienie opakowania wybranych algor
 W części analitycznej zostanie przeprowadzona symulacja wykrywania anomalii na kilku zbiorach danych. Wyniki otrzymane przy użyciu zaimplementowanych funkcji zostaną porównane z wynikami uzyskanymi przez zastosowanie znanych algorytmów klasyfikacji dostępnych w R. W tym drugim przypadku algorytmy będą znały klasy do jakich należą obserwacje by wskazać anomalie jako jedną z klas. Porównanie wyników obu podejść będzie polegało na wyznaczeniu wskaźników jakości (dokładności) powyższych rozwiązań.
 
 \section{Algorytmy}
-Do realizacji zadania zostaną wykorzystane trzy algorytmy grupowania (k-średnich, k-medoidów, ) oraz dwa algorytmy klasyfikacji (...). Każdy z nich zostanie pokrótce opisany wraz ze wskazaniem kluczowych parametrów.
+Do realizacji zadania zostaną wykorzystane trzy algorytmy grupowania (k-średnich, k-medoidów, grupowania hierarchicznego) oraz dwie metody klasyfikacji (drzewa decyzyjne, k najbliższych sąsiadów). Każdy z nich zostanie pokrótce opisany wraz ze wskazaniem kluczowych parametrów.
 
 \subsection{Algorytm k-średnich}
 Algorytm k-średnich jest jednym z najprostszych algorytmów rozwiązujących zadanie grupowania. Ideą algorytmu jest przyporządkowanie pewnego zbioru \mbox{N przykładów} do przyjętej a priori liczby grup K. Każda grupa posiada dokładnie jeden centroid, czyli punkt reprezentujący wartość średnią grupy. Pojedynczą obserwację $x_{i} = (x_{1}, x_{2},\ldots, x_{N})$ można przyporządkować tylko do jednego z centroidów $c_{j} = (c_{1}, c_{2},\ldots, c_{K})$ Oznacza to minimalizację funkcji: \begin{equation}
@@ -201,14 +201,25 @@ W języku R istnieje algorytm $pam$ (ang. partitioning around medoids) w pakieci
 
 \begin{verbatim}
 pam(x, k, diss = inherits(x, "dist"), metric = "euclidean",
-    medoids = NULL, stand = FALSE, cluster.only = FALSE,
-    do.swap = TRUE,
+    medoids = NULL, stand = FALSE, cluster.only = FALSE, do.swap = TRUE,
     keep.diss = !diss && !cluster.only && n < 100,
-    keep.data = !diss && !cluster.only,
-    pamonce = FALSE, trace.lev = 0)
+    keep.data = !diss && !cluster.only, pamonce = FALSE, trace.lev = 0)
 \end{verbatim} 
 
-(opis parametrów wejściowych i wyjściowych)
+Najważniejsze parametry wejściowe to:
+
+\begin{table}[H]
+\label{kMedoids_params}
+\centering
+\begin{tabularx}{\textwidth}{lcX}
+ x & -- & zbiór danych (numerycznych) do pogrupowania \\
+ k & -- & docelowa liczba grup \\
+metric & -- & metryka, według której obliczana jest odległość \\
+stand & -- & flaga binarna określająca czy dane mają być standaryzowane \\
+\end{tabularx}
+\end{table}
+
+W wyniku działania algorytmu otrzymujemy klasę, która zawiera informacje o wyznaczonych medoidach oraz przydział grupy dla każdego przykładu. Ponadto można znaleźć informację o miarach odległości między obserwacjami.
 
 \subsection{Algorytm hierarchiczny}
 Algorytmy hierarchiczne pozwalają na graficzną reprezentację struktury klasteryzacji w postaci drzewa. Można wyróżnić tu dwa podejścia: aglomeracyjne, gdzie każda z obserwacji stanowi na początku oddzielną grupę oraz partycjonujące - rozpoczynające od jednej grupy zawierającej wszystkie próbki. Przebieg aglomeracji przedstawia algorytm \ref{hierarch}.
@@ -253,7 +264,7 @@ Wynikiem działania algorytmu jest graficzna reprezentacja struktury grupowania 
 
 Pierwszą z metod klasyfikacji stosowaną w celu porównania z algorytmami grupowania są drzewa decyzyjne. W języku R istnieje wiele jej implementacji, z których wykorzystany zostanie algorytm C4.5 przedstawiony poniżej.
 
-\begin{algorithm}[ht]
+\begin{algorithm}[H]
 \caption{Algorytm C4.5}
 \label{decision_tree}
 	\begin{algorithmic}
@@ -310,32 +321,37 @@ algorithm=c("kd_tree", "cover_tree", "brute"))
 
 Jego najważniejsze parametry wejściowe to:
 
-\begin{table}[ht]
+\begin{table}[H]
 \label{kNN_params}
 \centering
 \begin{tabularx}{\textwidth}{lcX}
 train & -- & zbiór trenujący \\
-test & -- & testowany przykład \\
+test & -- & zbiór danych testowych \\
+cl & -- & prawdziwe klasy, do których należą przykłady zbiory trenującego \\
 k & -- & liczba sąsiadów \\
 \end{tabularx}
 \end{table}
 
-
+%\newpage
 \section{Opis badań}
 \subsection{Planowane eksperymenty}
 
 W projekcie przeprowadzone zostaną następujące eksperymenty:
 
 \begin{enumerate}
-  \item detekcja anomalii przy wykorzystaniu zaimplementowanego algorytmu dla różnych metod grupowania,
-  \item klasyfikacja za pomocą metody drzew decyzyjnych,
-  \item klasyfikacja za pomocą metody k najbliższych sąsiadów.
+  \item detekcja anomalii przy wykorzystaniu różnych wskaźników nietypowości dla różnych metod grupowania,
+  \item porównanie grupowania z klasyfikacją za pomocą drzew decyzyjnych,
+  \item porównanie grupowania z klasyfikacja za pomocą metody k najbliższych sąsiadów.
 \end{enumerate}
 
 %dokładność dla różnych danych - czy któryś z wybranych algorytmów jest lepszy od innych, czy lepsze jest grupowanie czy klasyfikacja
 %miary nieprawidłowości z artykułu zamiast standardowych odległości przy badaniu danych testowych
 
-W celu oceny anomalii konieczne jest użycie niestandardowych wskaźników, które nie tylko swierdzą ich obecność, ale również określą ich właściwości. Pierwszym z proponowanych wskaźników jest CBLOF liczony jako iloczyn odległości badanej probki od najbliższej dużej grupy i liczby elementów w grupie, do której obiekt został zaklasyfikowany. Koncepcja małych i dużych grup nie jest precyzyjnie określona - możliwy jest wybór algorytmu podziału.
+W celu stwierdzenia czy testowany przykład należy zaliczyć do jednej z wyznaczonych grup czy też oznaczyć go jako anomalię wykorzystamy niestandardowe wskaźniki omówione w \cite{miaryNietypowosci}.
+
+%W celu oceny anomalii konieczne jest użycie niestandardowych wskaźników, które nie tylko stwierdzą ich obecność, ale również określą ich właściwości. 
+
+Pierwszym z proponowanych wskaźników jest CBLOF liczony jako iloczyn odległości $d$ badanej próbki $p$ od najbliższej dużej grupy ($C \in LC$) i liczby elementów w grupie, do której obiekt został zaklasyfikowany. Koncepcja małych (SC) i dużych (LC) grup nie jest precyzyjnie określona - możliwy jest wybór algorytmu podziału.
 \begin{equation}
 CBLOF(p) = \begin{cases}
    |C_{i}| \cdot min(d(p,C_{j})), & \text{jeśli}\ C_{i} \in SC \text{, gdzie } p \in C_{i} \text{ oraz } C_{j} \in LC\\
@@ -345,7 +361,7 @@ CBLOF(p) = \begin{cases}
 
 Wskaźnik ten powinien rosnąć wraz z odległością próbki od dużej grupy, a zatem wskazywać na stopień anomali - im wyższa jego wartość, tym obiekt bardziej oddalony od grup. Jednak ze względu na fakt, że uwzględniana jest w nim również liczność grupy algorytm ten może dawać nieprawidłowe wyniki. Jako anomalie mogą zostać zaklasyfikowane próbki znajdujące się blisko bardzo licznych zbiorów.
 
-Lepszym rozwiązaniem będzie zatem być może nieważony wskaźnik CBLOF oparty jedynie na odległości od grup, z pominięciem ich liczności. W projekcie zostaną zastosowane obie wersje ocen anomalii i wykonane zostanie porównanie między nimi.
+Lepszym rozwiązaniem może być zatem nieważony wskaźnik CBLOF oparty jedynie na odległości od grup, z pominięciem ich liczności. W projekcie zostaną zastosowane obie wersje ocen anomalii i wykonane zostanie porównanie między nimi.
 
 \begin{equation}
 u-CBLOF(p) = \begin{cases}
@@ -376,18 +392,22 @@ LDCOF(p) = \begin{cases}
 %przekształcenie na dane numeryczne już we własnej funkcji
 %opis wybranych zbiorów danych
 
-Badania przeprowadzone zostaną na kilku zbiorach danych o numerycznych typach atrybutów. Wstępne ich przetwarzanie będzie różnić się w zależności od etapu projektu. W przypadku grupowania możliwe będzie ograniczenie liczby wykorzystanych atrybutów. Klasyfikator k najbliższych sąsiadów będzie z kolei prawdopodobnie wymagał normalizacji danych. 
+Badania przeprowadzone zostaną na kilku zbiorach danych o numerycznych typach atrybutów. Wynika to z parametrów przyjmowanych przez wybrane algorytmy grupowania. Nie oznacza to jednak, że nie można grupować atrybutów dyskretnych. Wymagałoby to ich przewartościowania na wartości numeryczne.
 
-Dla wszystkich zbiorów danych konieczne będzie określenie sposobu postępowania z brakującymi wartościami. W przypadku pojedynczych braków pewne próbki zostaną najprawdopodobniej pominięte lub też zastąpione średnią wartością artybutu. Jeżeli brakujących wartości byłoby więcej, lepsze wyniki dałaby predykcja danej wartości.
+Dla wszystkich zbiorów danych konieczne będzie określenie sposobu postępowania z brakującymi wartościami. W przypadku pojedynczych braków pewne próbki zostaną najprawdopodobniej pominięte lub też zastąpione średnią wartością atrybutu. Jeżeli brakujących wartości byłoby więcej, lepsze wyniki dałaby predykcja danej wartości.
+
+Wstępne przetwarzanie atrybutów będzie odbywać się przed dostarczeniem danych do metody wyznaczającej grupowanie. Możliwe będzie również ograniczenie liczby wykorzystanych atrybutów. Klasyfikator k najbliższych sąsiadów będzie z kolei prawdopodobnie wymagał normalizacji danych. 
 
 Wykorzystane zostaną przykładowe zbiory danych pochodzące z UCI Machine Learning Repository:
 \begin{itemize}
-  \item Dataset for Sensorless Drive Diagnosis Data Set - zbiór danych diagnostycznych dla napędów komputerowych,
-  \item Gas sensor array under dynamic gas mixtures Data Set - zbiór danych z sensorów chemicznych,
-  \item Grammatical Facial Expressions Data Set - zbiór służący interpretacji mimiki na podstawie języka migowego,
-  \item Image Segmentation Data Set - segmentacja obrazów,
-  \item Mice Protein Expression Data Set - ekspresja białek mierzona w korze mózgu myszy,
-  \item TV News Channel Commercial Detection Dataset Data Set - zbiór cech audiowizualnych reklam.
+\item Letter Recognition Data Set -- zbiór danych dotyczących zdjęć liter alfabetu,  zawiera 16 atrybutów oraz 26 klas
+\item Mushroom Data Set -- zbiór danych opisujących grzyby. Możliwe są dwie klasy - grzyby jadalne lub trujące, zawiera 22 atrybuty
+\item Dataset for Sensorless Drive Diagnosis Data Set -- zbiór danych diagnostycznych dla napędów komputerowych, możliwość klasyfikacji na podstawie 49 atrybutów do 11 klas
+  %\item Gas sensor array under dynamic gas mixtures Data Set - zbiór danych z sensorów chemicznych,
+  %\item Grammatical Facial Expressions Data Set - zbiór służący interpretacji mimiki na podstawie języka migowego,
+  %\item Image Segmentation Data Set - segmentacja obrazów,
+  %\item Mice Protein Expression Data Set - ekspresja białek mierzona w korze mózgu myszy,
+  %\item TV News Channel Commercial Detection Dataset Data Set - zbiór cech audiowizualnych reklam.
 \end{itemize}
 
 \subsection{Ocena jakości}
@@ -419,6 +439,8 @@ Na tej podstawie można wyznaczyć wskaźniki jakości rozwiązania:
 \item dokładność -- liczba poprawnie sklasyfikowanych obserwacji wśród wszystkich wyników klasyfikacji $$\text{\emph{dokładność}} = \frac{TP+TN}{TP+TN+FP+FN}$$
 \item precyzja -- liczba poprawnie sklasyfikowanych przykładów wśród wszystkich obserwacji zaklasyfikowanych do znalezionych grup $$\text{\emph{precyzja}} = \frac{TP}{TP+FP}$$
 \end{itemize}
+
+%W przypadku większej liczby klas, macierz pomyłek wyznaczana będzie korzystając z podejścia OVA.
 
 \section{Kwestie otwarte}
 W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych parametrów algorytmów, które nie są bezpośrednio związane z zadaniem (np. wybór implementacji algorytmu k-średnich w ramach funkcji \textit{kmeans}). Jeśli podczas testów okaże się, że pewne parametry nieomówione powyżej będą zmieniane, zostanie podana stosowna adnotacja.
