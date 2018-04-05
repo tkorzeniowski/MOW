@@ -69,6 +69,8 @@ data[6:10,3] <- 2
 agn1 <- agnes(data[,1:2], metric = "manhattan", stand = TRUE)
 agn1Class <- cutree(agn1, k=2)
 
+pamAlg <- pam(data, 2)
+
 hcl <- hclust(dist(data[,1:2]), method = "centroid")
 hclClass <- cutree(hcl, k=2)
 hcl$labels
