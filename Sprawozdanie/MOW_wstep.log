@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6630 64-bit) (preloaded format=pdflatex 2018.3.31)  6 APR 2018 22:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6630 64-bit) (preloaded format=pdflatex 2018.3.31)  6 APR 2018 22:28
 entering extended mode
 **./MOW_wstep.tex
 (MOW_wstep.tex
@@ -826,7 +826,11 @@ Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
 \rotheadsize=\dimen150
 \c@nlinenum=\count146
 \TeXr@lab=\toks33
-) (MOW_wstep.aux)
+) (MOW_wstep.aux
+
+LaTeX Warning: Label `kSasiadow' multiply defined.
+
+)
 \openout1 = `MOW_wstep.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 97.
@@ -845,8 +849,7 @@ LaTeX Font Info:    Checking defaults for OT4/cmr/m/n on input line 97.
 LaTeX Font Info:    ... okay on input line 97.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 97.
 LaTeX Font Info:    ... okay on input line 97.
-
-(B:\Miktex\tex\context\base\supp-pdf.mkii
+ (B:\Miktex\tex\context\base\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count147
 \scratchdimen=\dimen151
@@ -989,13 +992,7 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 403.
  [6] [7]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 474.
- [8pdfTeX warning (ext4): destination with the same identifier (name{cite.kSasi
-adow}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.474 \end{document}
-                    ]
+ [8]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 474.
  (MOW_wstep.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 474.
@@ -1004,15 +1001,15 @@ Package rerunfilecheck Info: File `MOW_wstep.out' has not changed.
 (rerunfilecheck)             Checksum: E902069A73AB0977A4B323D4C5996C3A;868.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 474.
  ) 
 Here is how much of TeX's memory you used:
- 11455 strings out of 493305
- 163167 string characters out of 3146678
+ 11457 strings out of 493305
+ 163182 string characters out of 3146678
  281419 words of memory out of 3000000
- 14748 multiletter control sequences out of 15000+200000
+ 14749 multiletter control sequences out of 15000+200000
  14037 words of font info for 42 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,12n,43p,985b,451s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1028,9 +1025,9 @@ x/fonts/type1/public/pl/plmi6.pfb><B:/Miktex/fonts/type1/public/pl/plmi8.pfb><B
 l/plr8.pfb><B:/Miktex/fonts/type1/public/pl/plsy10.pfb><B:/Miktex/fonts/type1/p
 ublic/pl/plsy8.pfb><B:/Miktex/fonts/type1/public/pl/plti10.pfb><B:/Miktex/fonts
 /type1/public/pl/pltt10.pfb>
-Output written on MOW_wstep.pdf (8 pages, 160036 bytes).
+Output written on MOW_wstep.pdf (8 pages, 160147 bytes).
 PDF statistics:
- 217 PDF objects out of 1000 (max. 8388607)
- 52 named destinations out of 1000 (max. 500000)
+ 218 PDF objects out of 1000 (max. 8388607)
+ 53 named destinations out of 1000 (max. 500000)
  118 words of extra memory for PDF output out of 10000 (max. 10000000)
 
