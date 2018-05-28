@@ -1,49 +1,102 @@
-library(arules)
 library(cluster)
-data("AdultUCI")
+library(class)
+library(caret)
+source('createGroups.R')
+source('predict.R')
+set.seed(123)
 
-ad <- as.numeric(AdultUCI$workclass)
-age <- as.numeric(AdultUCI$age)
 
-x <- 0
-for(i in 1:length(AdultUCI$age)){
-  if(AdultUCI$age[i] == age[i]) {
-    x <- x+1
+# wczytywanie zbiorow danych i wybor atrybutow decyzyjnych (klas poszczegolnych obserwacji)
+mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
+
+anomalies <- mushroomDataset[which(mushroomDataset[,1]=='p'),]
+mushroomDataset <- mushroomDataset[-which(mushroomDataset[,1]=='p'),]
+
+for(i in 1:nrow(anomalies)){
+  for(j in 1:ncol(anomalies)){
+    if(anomalies[i,j]=="?"){
+      anomalies[i,j] <- "i" # litera i nie jest wykorzystywana jako wartosc atrybutu, wiec mozna ja wykorzystac zamiast ? (wartosci brakujacych)
+    }
+    anomalies[i,j] <- which(anomalies[i,j] == letters)
   }
 }
 
-
-
-
-data <- AdultUCI
-for (i in 1:ncol(data)){
-  data[,i] <- as.numeric(data[,i])
-}
-
-data[is.na(data)] <- -1
-
-
-wss <- vector(mode = "integer" ,length = ncol(data))
-for (i in 1:ncol(data)) {  # Od 1 do 15 grup
-  kmeans.group <- kmeans(data, centers = i, iter.max = 20, nstart=20)
-  wss[i] <- kmeans.group$tot.withinss # Całkowita suma odległości wewnątrz grup
-}
-
-result <- kmeans(data, 3)
-
-
-x2 <- 0
-for(i in 1:nrow(data)){
-  if(data$income[i] == result$cluster[i]) {
-    x2 <- x2+1
+for(i in 1:nrow(mushroomDataset)){
+  for(j in 1:ncol(mushroomDataset)){
+    if(mushroomDataset[i,j]=="?"){
+      mushroomDataset[i,j] <- "i" # litera i nie jest wykorzystywana jako wartosc atrybutu, wiec mozna ja wykorzystac zamiast ? (wartosci brakujacych)
+    }
+    mushroomDataset[i,j] <- which(mushroomDataset[i,j] == letters)
   }
 }
-x2 <- x2/nrow(data)
+
+anomalies <- as.data.frame(anomalies)
+anomalies[,1] <- 2
+mushroomDataset <- as.data.frame(mushroomDataset)
+
+data <- mushroomDataset
+idTrainData <- unlist(createDataPartition(data[,1], p=0.9))
+#idTrainData <- sample(2, nrow(data), replace=TRUE, prob=c(0.9, 0.1))
+trainData <-data[idTrainData,]
+trainClasses <- matrix(1, nrow(trainData), 1)
+trainData[,1] <- NULL
+testData <-data[-idTrainData,]
+testData[,1] <- 1 
+
+testData <- rbind(testData, anomalies)
+testClasses <- as.numeric(testData[,1])
+testData[,1] <- NULL
 
 
-k <- 2
-pokemonKmeans <- kmeans(as.matrix(data[1:1000,]), k, iter.max = 20)
-plot(data[1:1000,], col = pokemonKmeans$cluster)
+############################
+
+
+
+letterDataset <- as.matrix(read.table('letterRecognition.txt', sep = ','))
+
+anomalies <- letterDataset[which(letterDataset[,1]=='Z'),]
+anomalies[,1] <- 26
+letterDataset <- letterDataset[-which(letterDataset[,1]=='Z'),]
+
+for(i in 1:nrow(letterDataset)){
+  letterDataset[i,1] <- which(letterDataset[i,1] == LETTERS)
+}
+letterDataset <- as.data.frame(letterDataset)
+
+letterClasses <- as.numeric(letterDataset[,1])
+
+data <- letterDataset
+
+idTrainData <- unlist(createDataPartition(data[,1], p=0.7))
+trainData <-data[idTrainData,]
+trainClasses <- trainData[,1]
+trainData[,1] <- NULL
+testData <-data[-idTrainData,]
+
+testData <- rbind(testData, anomalies)
+testClasses <- as.numeric(testData[,1])
+testData[,1] <- NULL
+
+
+
+############################
+
+
+sensorDataset <- read.table('SensorlessDriveDiagnosis.txt')
+
+anomalies <- sensorDataset[which(sensorDataset[,49]==11),]
+sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
+
+data <- sensorDataset
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
+trainData <-data[idTrainData,]
+trainClasses <- trainData[,49]
+trainData[,49] <- NULL
+testData <-data[-idTrainData,]
+
+testData <- rbind(testData, anomalies)
+testClasses <- as.numeric(testData[,49])
+testData[,1] <- NULL
 
 
 
@@ -52,29 +105,47 @@ plot(data[1:1000,], col = pokemonKmeans$cluster)
 
 
 
+############################
+# wyniki implementacji
+#mushroom
+CGResult <- createGroups(trainData, 1, 'kmeans')
+predictResult <- predict(CGResult, testData, testClasses)
+
+#letter
+CGResult <- createGroups(trainData, 25, 'kmeans')
+predictResult <- predict(CGResult, testData, testClasses)
+
+#sensor
+CGResult <- createGroups(trainData, 10, 'kmeans')
+predictResult <- predict(CGResult, testData, testClasses)
+
+############################
+
+"!!! 
+ogólnie nie wiadomo ktora etykieta bedzie odpowiednia dla klasy, tzn. w przypadku grzybow 
+etykiety to 16 i 5, a algorytm k-srednich daje 1 i 2, jak sie dowiedziec czy 16==1 czy 16==2 itd.
+!!! 
+moze sprobowac wszystkich kombinacji i ta, ktora daje najwieksza dokladnosc 
+to jest wlasciwe etyrkietowanie?
+w przypadku wiekszej liczby klas nalezy sie spodziewac, ze problem ten bedzie narastal, gdyz 
+bedzie wiecej mozliwych kombinacji i sprawdzene kazdej z nich zajmie dluzej niz 
+dzialanie algorytmu grupowania
+
+aby temu zaradzic do sprawdzenia dokladnosci patrzymy czy przyklad zostal zaklasyfikowany jako 
+anomalia czy jako dowolna ze znalezionych klas (niewazne ktora, bo i tak nie zgadniemy prawidlowych etykiet)
+"
 
 
 
+############################
 
-#########################################
-data <- matrix(0, 10, 3)
-colnames(data) <- c('p', 'd', 't')
-data[1:5,1] <- runif(5, 1, 10)
-data[6:10,1] <- runif(5, 15, 30)
-data[1:5,2] <- runif(5, 1, 10)
-data[6:10,2] <- runif(5, 15, 30)
-data[1:5,3] <- 5
-data[6:10,3] <- 2
+# klasyfikacja
+#TO DO: J48
 
-agn1 <- agnes(data[,1:2], metric = "manhattan", stand = TRUE)
-agn1Class <- cutree(agn1, k=2)
+# knn
+knnAlg <- knn(trainData, testData, trainClasses, k = 3, l = 1) # problem niewlasciwych etykiet?
 
-pamAlg <- pam(data, 2)
-
-hcl <- hclust(dist(data[,1:2]), method = "centroid")
-hclClass <- cutree(hcl, k=2)
-hcl$labels
-plot(hcl)
-
-
-knnAlg <- knn(data[c(1,2,3,6,7,8),1:2], data[c(4,5,9,10),1:2], data[c(1,2,3,6,7,8),3])
+v <- data.frame(matrix(0, nrow(testData), 2))
+v[,1] <- knnAlg
+v[,2] <- testClasses
+acc <- length(which(v[,1]==v[,2]))/nrow(testData)
