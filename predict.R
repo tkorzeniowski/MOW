@@ -1,4 +1,4 @@
-predict <- function(model, testData, testClasses, alfa = 0.8, beta = 2){
+predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2){
   classes <- model$labels
   classNames <- unique(classes)
   numberOfClasses <- length(classNames)

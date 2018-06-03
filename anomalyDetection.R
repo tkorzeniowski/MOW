@@ -42,7 +42,7 @@ anomalies[,1] <- 2
 mushroomDataset <- as.data.frame(mushroomDataset)
 
 data <- mushroomDataset
-idTrainData <- unlist(createDataPartition(data[,1], p=0.9))
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 #idTrainData <- sample(2, nrow(data), replace=TRUE, prob=c(0.9, 0.1))
 trainData <-data[idTrainData,]
 trainClasses <- matrix(1, nrow(trainData), 1)
@@ -74,7 +74,7 @@ letterClasses <- as.numeric(letterDataset[,1])
 
 data <- letterDataset
 
-idTrainData <- unlist(createDataPartition(data[,1], p=0.7))
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
 trainClasses <- trainData[,1]
 trainData[,1] <- NULL
@@ -111,15 +111,15 @@ testData[,49] <- NULL
 # wyniki implementacji
 #mushroom
 CGResult <- createGroups(trainData, 1, 'kmeans')
-predictResult <- predict(CGResult, testData, testClasses)
+predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 #letter
 CGResult <- createGroups(trainData, 25, 'kmeans')
-predictResult <- predict(CGResult, testData, testClasses)
+predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 #sensor
 CGResult <- createGroups(trainData, 10, 'kmeans')
-predictResult <- predict(CGResult, testData, testClasses)
+predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 ############################
 
@@ -143,7 +143,7 @@ anomalia czy jako dowolna ze znalezionych klas (niewazne ktora, bo i tak nie zga
 
 #J48
 
-# mushroom
+# mushroom - 100%
 mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
 
 for(i in 1:nrow(mushroomDataset)){
@@ -157,8 +157,8 @@ for(i in 1:nrow(mushroomDataset)){
 
 mushroomDataset <- as.data.frame(mushroomDataset)
 data <- mushroomDataset
-idTrainData <- unlist(createDataPartition(data[,1], p=0.5))
-trainData <-data[idTrainData,]
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
+trainData <- data[idTrainData,]
 dataToJ48Classification <- trainData
 trainClasses <- trainData[,1]
 trainData[,1] <- NULL
@@ -168,40 +168,49 @@ testData[,1] <- NULL
 resultJ48 <- J48(V1~., data = dataToJ48Classification, control= Weka_control(M=15))#
 
 
-#letter
+#letter - 68-70%
 letterDataset <- as.matrix(read.table('letterRecognition.txt', sep = ','))
 for(i in 1:nrow(letterDataset)){
   letterDataset[i,1] <- which(letterDataset[i,1] == LETTERS)
 }
 letterDataset <- as.data.frame(letterDataset)
-letterClasses <- as.numeric(letterDataset[,1])
+#letterClasses <- as.factor(letterDataset[,1])
+letterClasses <- letterDataset[,1]
 data <- letterDataset
-dataToJ48Classification <- letterDataset
-idTrainData <- unlist(createDataPartition(data[,1], p=0.7))
+
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
+#dataToJ48Classification <- letterDataset
+dataToJ48Classification <- trainData
 trainClasses <- trainData[,1]
 trainData[,1] <- NULL
 testData <-data[-idTrainData,]
-testClasses <- as.numeric(testData[,1])
+#testClasses <- as.numeric(testData[,1])
+testClasses <- testData[,1]
 testData[,1] <- NULL
 resultJ48 <- J48(V1~., data = dataToJ48Classification, control= Weka_control(M=15))#
 
 
-#sensor
+#sensor - 98%
 sensorDataset <- read.table('SensorlessDriveDiagnosis.txt')
 dataToJ48Classification <- sensorDataset
 
 data <- sensorDataset
-idTrainData <- unlist(createDataPartition(data[,1], p=0.6))
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
+dataToJ48Classification <- trainData
+
 trainClasses <- trainData[,49]
 trainData[,49] <- NULL
 testData <-data[-idTrainData,]
-testClasses <- as.numeric(testData[,49])
+#testClasses <- as.numeric(testData[,49])
+testClasses <- testData[,49]
 testData[,49] <- NULL
 
 dataToJ48Classification$V49 <- as.factor(dataToJ48Classification$V49)
 resultJ48 <- J48(V49~., data = dataToJ48Classification, control= Weka_control(M=15))#
+
+
 
 pred <- predict(resultJ48, testData)
 v <- data.frame(matrix(0, nrow(testData), 2))
@@ -217,12 +226,21 @@ acc
 
 # normalizacja
 
-train_normalized <- trainData;
-test_normalized <- testData;
+#mushroom - dokladnosc 100% bez normalizacji
+train_normalized <- trainData[,c(-16)]
+test_normalized <- testData[,c(-16)]
 
-# Funkcja Normalization z pakietu clusterSim teoretycznie powinna normalizowaæ dane, ale 
-# z jakiegoœ powodu mi nie dzia³a i nie daje ¿adnej poprawy skutecznoœci knn, wiêc 
-# poni¿ej zrobi³am normalizacjê "rêcznie"
+#letter - dokladnosc 95% bez normalizacji
+train_normalized <- trainData
+test_normalized <- testData
+
+#sensor - dokladnosc 82% z normalizacja (bez normalizacji okoÅ‚o 11%)
+train_normalized <- trainData
+test_normalized <- testData
+
+# Funkcja Normalization z pakietu clusterSim teoretycznie powinna normalizowa? dane, ale 
+# z jakiego? powodu mi nie dzia?a i nie daje ?adnej poprawy skuteczno?ci knn, wi?c 
+# poni?ej zrobi?am normalizacj? "r?cznie"
 #train_normalized <- data.Normalization (train_normalized,type="n1",normalization="column")
 
 
@@ -237,16 +255,33 @@ train_normalized <- as.data.frame(train_normalized)
 means_train <- as.data.frame(means_train)
 sds_train <- as.data.frame(sds_train)
 
+
+
+test_normalized = as.matrix(as.data.frame(lapply(test_normalized, as.numeric)))#
+
+means_test = colMeans(test_normalized)
+test_normalized = data.matrix(test_normalized)
+sds_test = colSds(test_normalized)
+
+test_normalized <- as.data.frame(test_normalized)
+means_test <- as.data.frame(means_test)
+sds_test <- as.data.frame(sds_test)
+
 for(i in 1:nrow(means_train)){
+  "
   for(j in 1:nrow(train_normalized)){
-    train_normalized[j,i] = (train_normalized[j,i] - means_train[i,])/sds_train[i,]
+    train_normalized[j,i] <- (train_normalized[j,i] - means_train[i,])/sds_train[i,]
   }
   for(j in 1:nrow(test_normalized)){
-    test_normalized[j,i] = (test_normalized[j,i] - means_train[i,])/sds_train[i,]
+    test_normalized[j,i] <- (test_normalized[j,i] - means_train[i,])/sds_train[i,]
   }
+"
+  train_normalized[,i] <- (train_normalized[,i] - means_train[i,])/sds_train[i,]
+  test_normalized[,i] <- (test_normalized[,i] - means_train[i,])/sds_train[i,]
+  
 }
 
-#knnAlg <- knn(trainData, testData, trainClasses, k = 3, l = 1) # problem niewlasciwych etykiet?
+#knnAlg2 <- knn(trainData, testData, trainClasses, k = 3, l = 1) # problem niewlasciwych etykiet?
 knnAlg <- knn(train_normalized, test_normalized, trainClasses, k = 3, l = 1)
 v <- data.frame(matrix(0, nrow(testData), 2))
 v[,1] <- knnAlg
