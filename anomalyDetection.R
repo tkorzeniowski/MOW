@@ -40,7 +40,6 @@ for(i in 1:nrow(mushroomDataset)){
 anomalies <- as.data.frame(anomalies)
 anomalies[,1] <- 2
 mushroomDataset <- as.data.frame(mushroomDataset)
-dataToJ48Classification <- mushroomDataset
 
 data <- mushroomDataset
 idTrainData <- unlist(createDataPartition(data[,1], p=0.9))
@@ -98,7 +97,6 @@ sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
 data <- sensorDataset
 idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
-dataToJ48Classification <- trainData
 trainClasses <- trainData[,49]
 trainData[,49] <- NULL
 testData <-data[-idTrainData,]
