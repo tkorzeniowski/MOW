@@ -447,6 +447,51 @@ W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych pa
 
 Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. W sytuacji gdy wskaźniki te nie będą w stanie wystarczająco jednoznacznie wyznaczyć, które z rozwiązań jest lepsze, zostaną rozważone i opisane inne miary jakości.
 
+\section{Wyniki}
+Taka tabelka dla każdego z algorytmów grupowania (ta, która ładniej będzie wyglądała)
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
+\label{accPrec_v1}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{2}{c|}{mushroom} & \multicolumn{2}{c|}{letter} & \multicolumn{2}{c|}{sensor} \\\hline
+ & dokładność & precyzja & dokładność & precyzja & dokładność & precyzja \\\hline
+ CBLOF & & & & & &\\\hline
+ uCBLOF & & & & & &\\\hline
+ LDCOF & & & & & &\\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
+\label{accPrec_v2}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
+ & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
+ CBLOF & & & & & &\\\hline
+ uCBLOF & & & & & &\\\hline
+ LDCOF & & & & & &\\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+Takie same tabelki dla dla klasyfikacji.
+
+Można też rozważyć trzy progi w stwierdzaniu czy przykład jest anomalią, np. zamiast 0.5 spróbować jeszcze 0.4 i 0.6(0.75?). A poza tym zobaczyć czy jest jakaś istotna różnica, jak podział na małe i duże klastry będzie inny (różne wartości parametrów alfa i beta).
+
+No i bardzo ważna sprawa -- jestem przekonany, że wysokie wartości wskaźników to niby fajnie (dla naszego grupowania), ale to jest złudne, gdyż anomalii jest względnie mało (jak anomalii jest około 10\% wśród wszystkich danych to i wskaźnik dokładności może powiedzieć, że 90\%, ale tak naprawdę nie wykrywa anomalii). Dlatego trzeba będzie zwrócić uwagę na same macierze pomyłek, żeby pokazać, że wskaźniki wskaźnikami, a my wiemy, że wcale nie jest tak kolorowo.
+
+Co do podziału danych raczej wystarczy brać 80\% treningowych i 20\% testowych + anomalie, nie będziemy się bawić w walidację krzyżową.
+
 \begin{thebibliography}{9}
 %\addcontentsline{toc}{section}{Literatura}
 %\bibitem{BOCD}
