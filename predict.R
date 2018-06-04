@@ -28,6 +28,8 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   
   outlierM <- matrix(0, nrow(testData), 3) # miara nietypowosci
   distance <- matrix(0, numberOfClasses, 1) # odleglosc punktu p do wszystkich grup
+
+  LC <- classNameSize[which(classNameSize[,3] == 1), 1]
   for(i in 1:nrow(testData)){
     
     for(j in 1:numberOfClasses){
@@ -41,7 +43,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     if(classNameSize[which(classNameSize[,1]==minDistIndex), 3]){ # if p is in LC
       outlierM[i,2] <- distance[minDistIndex]
     }else{ # p is in SC
-      LC <- classNameSize[which(classNameSize[,3] == 1), 1]
+      #LC <- classNameSize[which(classNameSize[,3] == 1), 1]
       outlierM[i,2] <- min(distance[LC])
     }
     
@@ -62,12 +64,12 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     if(classNameSize[which(classNameSize[,1]==minDistIndex), 3]){ # if p is in LC
       outlierM[i,3] <- distance[minDistIndex] / avgDist
     }else{ # p is in SC
-      LC <- classNameSize[which(classNameSize[,3] == 1), 1]
+      #LC <- classNameSize[which(classNameSize[,3] == 1), 1]
       outlierM[i,3] <- min(distance[LC]) / avgDist
     }
   
   }
-
+  
   print('wyznaczanie anomalii ')
   print(Sys.time())
   # wyznaczanie anomalii
@@ -122,10 +124,12 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   print(Sys.time())
   accuracy <- matrix(0,3,1)
   precision <- matrix(0,3,1)
+  
   for(i in 1:3){
     accuracy[i] <- (confusionMatrix[i,1] + confusionMatrix[i,4])/sum(confusionMatrix[i,])
     precision[i] <- confusionMatrix[i,1] / (confusionMatrix[i,1] + confusionMatrix[i,2])
   }
+
   
   
   return(list('classNameSize' = classNameSize, 'outlier' = outlierM, 'anomalies' = accTable, 'confusionMatrix' = confusionMatrix, 'accuracy' = accuracy, 'precision' = precision))

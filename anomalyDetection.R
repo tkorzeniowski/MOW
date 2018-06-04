@@ -219,6 +219,10 @@ v[,2] <- testClasses
 acc <- length(which(v[,1]==v[,2]))/nrow(testData)
 acc
 
+cfMatrix <- confusionMatrix(pred, testClasses)
+acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
+precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))
+
 
 
 
@@ -288,3 +292,9 @@ v[,1] <- knnAlg
 v[,2] <- testClasses
 acc <- length(which(v[,1]==v[,2]))/nrow(testData)
 acc
+
+# dokladnosc i precyzja dla klasyfikacji
+cfMatrix <- confusionMatrix(knnAlg, testClasses)
+acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
+precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))
+
