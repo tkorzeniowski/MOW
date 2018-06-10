@@ -11,16 +11,17 @@
 \BOOKMARK [2][-]{subsection.3.1}{Planowane eksperymenty}{section.3}% 11
 \BOOKMARK [2][-]{subsection.3.2}{Zbiory danych}{section.3}% 12
 \BOOKMARK [2][-]{subsection.3.3}{Ocena jakosci}{section.3}% 13
-\BOOKMARK [1][-]{section.4}{Kwestie otwarte}{}% 14
-\BOOKMARK [1][-]{section.5}{Opis programu}{}% 15
-\BOOKMARK [1][-]{section.6}{Wyniki}{}% 16
-\BOOKMARK [2][-]{subsection.6.1}{Anomalie jako jedna z grup}{section.6}% 17
-\BOOKMARK [3][-]{subsubsection.6.1.1}{Grupowanie za pomoca algorytmu k-srednich }{subsection.6.1}% 18
-\BOOKMARK [3][-]{subsubsection.6.1.2}{Grupowanie za pomoca algorytmu k-medoid\363w }{subsection.6.1}% 19
-\BOOKMARK [3][-]{subsubsection.6.1.3}{Grupowanie za pomoca algorytmu hierarchicznego }{subsection.6.1}% 20
-\BOOKMARK [3][-]{subsubsection.6.1.4}{Klasyfikacja za pomoca drzew decyzyjnych i algorytmu knn}{subsection.6.1}% 21
-\BOOKMARK [2][-]{subsection.6.2}{Sztuczne anomalie}{section.6}% 22
-\BOOKMARK [1][-]{section.7}{Wnioski}{}% 23
-\BOOKMARK [2][-]{subsection.7.1}{Wskazniki dla algorytm\363w grupowania}{section.7}% 24
-\BOOKMARK [2][-]{subsection.7.2}{Por\363wnanie z klasyfikacja}{section.7}% 25
-\BOOKMARK [2][-]{subsection.7.3}{Sztuczne anomalie}{section.7}% 26
+\BOOKMARK [2][-]{subsection.3.4}{Kwestie otwarte w etapie pierwszym}{section.3}% 14
+\BOOKMARK [1][-]{section.4}{Implementacja}{}% 15
+\BOOKMARK [1][-]{section.5}{Wyniki}{}% 16
+\BOOKMARK [2][-]{subsection.5.1}{Anomalie jako jedna z grup}{section.5}% 17
+\BOOKMARK [3][-]{subsubsection.5.1.1}{Grupowanie za pomoca algorytmu k-srednich }{subsection.5.1}% 18
+\BOOKMARK [3][-]{subsubsection.5.1.2}{Grupowanie za pomoca algorytmu k-medoid\363w }{subsection.5.1}% 19
+\BOOKMARK [3][-]{subsubsection.5.1.3}{Grupowanie za pomoca algorytmu hierarchicznego }{subsection.5.1}% 20
+\BOOKMARK [3][-]{subsubsection.5.1.4}{Klasyfikacja za pomoca drzew decyzyjnych i algorytmu knn}{subsection.5.1}% 21
+\BOOKMARK [2][-]{subsection.5.2}{Sztuczne anomalie}{section.5}% 22
+\BOOKMARK [1][-]{section.6}{Wnioski}{}% 23
+\BOOKMARK [2][-]{subsection.6.1}{Wskazniki jakosci dla algorytm\363w grupowania}{section.6}% 24
+\BOOKMARK [2][-]{subsection.6.2}{Por\363wnanie z klasyfikacja}{section.6}% 25
+\BOOKMARK [2][-]{subsection.6.3}{Sztuczne anomalie}{section.6}% 26
+\BOOKMARK [2][-]{subsection.6.4}{Wskazniki nietypowosci}{section.6}% 27

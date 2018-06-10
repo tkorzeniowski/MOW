@@ -14,6 +14,11 @@ set.seed(123)
 
 
 # wczytywanie zbiorow danych i wybor atrybutow decyzyjnych (klas poszczegolnych obserwacji)
+############################################
+
+# MUSHROOM dataset
+
+############################################
 mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
 
 anomalies <- mushroomDataset[which(mushroomDataset[,1]=='p'),]
@@ -44,7 +49,6 @@ mushroomDataset <- as.data.frame(mushroomDataset)
 
 data <- mushroomDataset
 idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
-#idTrainData <- sample(2, nrow(data), replace=TRUE, prob=c(0.9, 0.1))
 trainData <-data[idTrainData,]
 trainClasses <- matrix(1, nrow(trainData), 1)
 trainData[,1] <- NULL
@@ -79,7 +83,7 @@ testData <-data[-idTrainData,]
 
 data = as.matrix(as.data.frame(lapply(data, as.numeric)))
 
-# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+# Sprawdzam maksymalne i minimalne wartosci kazdej z cech
 max_min_feature_values <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
   max_min_feature_values[1,i] = max(data[,i])
@@ -87,7 +91,7 @@ for(i in 1:ncol(data)){
 }
 
 
-# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+# obliczam progi dla anomalii: wystepuja od wartosci 2*max przez 1/3 zakresu danej cechy
 ranges <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
   ranges[1,i] <- 2 * max_min_feature_values[1,i]
@@ -108,8 +112,14 @@ testData <- as.data.frame(testData)
 testData[,1] <- NULL
 
 
-############################
 
+
+
+############################################
+
+# LETTER dataset
+
+############################################
 
 letterDataset <- as.matrix(read.table('letterRecognition.txt', sep = ','))
 
@@ -155,7 +165,7 @@ testData <-data[-idTrainData,]
 
 data = as.matrix(as.data.frame(lapply(data, as.numeric)))
 
-# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+# Sprawdzam maksymalne i minimalne wartosci kazdej z cech
 max_min_feature_values <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
   max_min_feature_values[1,i] = max(data[,i])
@@ -163,7 +173,7 @@ for(i in 1:ncol(data)){
 }
 
 
-# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+# obliczam progi dla anomalii: wystepuja od wartosci 2*max przez 1/3 zakresu danej cechy
 ranges <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
   ranges[1,i] <- 2 * max_min_feature_values[1,i]
@@ -186,24 +196,30 @@ testData[,1] <- NULL
 
 
 
-############################
 
+
+############################################
+
+# SENSOR dataset
+
+############################################
 
 sensorDataset <- read.table('SensorlessDriveDiagnosis.txt')
 
 anomalies <- sensorDataset[which(sensorDataset[,49]==11),]
-# tylko na potrzeby testow
+# tylko dla algorytmu hierarchicznego
+"
 sensor <- 0
 for(i in 1:10){
   sensor <- rbind(sensor, sensorDataset[which(sensorDataset[,49]==i)[1:2700],])
 }
 sensor <- sensor[-1,]
-# 
-
-#sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
-
-#data <- sensorDataset
 data <- sensor
+"
+
+sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
+
+data <- sensorDataset
 idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
 trainClasses <- trainData[,49]
@@ -224,7 +240,7 @@ trainClasses <- trainData[,49]
 trainData[,49] <- NULL
 testData <-data[-idTrainData,]
 
-# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+# Sprawdzam maksymalne i minimalne wartosci kazdej z cech
 max_min_feature_values <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
     max_min_feature_values[1,i] = max(data[,i])
@@ -232,7 +248,7 @@ for(i in 1:ncol(data)){
 }
 
 
-# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+# obliczam progi dla anomalii: wystepuja od wartosci 2*max przez 1/3 zakresu danej cechy
 ranges <- matrix(0, 2, ncol(data))
 for(i in 1:ncol(data)){
   ranges[1,i] <- 2 * max_min_feature_values[1,i]
@@ -249,8 +265,17 @@ testData <- rbind(testData, anomalies)
 testClasses <- as.numeric(testData[,49])
 testData[,49] <- NULL
 
-############################
-# wyniki implementacji
+
+
+
+
+
+
+############################################
+
+# generowanie wynikow dla grupowania + predykcji na podstawie wskaznikow nietypowosci
+
+############################################
 #mushroom
 CGResult <- createGroups(trainData, 1, 'kmedoids')
 predictResult <- predictAnomalies(CGResult, testData, testClasses)
@@ -282,8 +307,11 @@ anomalia czy jako dowolna ze znalezionych klas (niewazne ktora, bo i tak nie zga
 
 
 ################################### klasyfikacja ########################################
+############################################
 
-#J48
+# J48
+
+############################################
 
 # mushroom - 100%
 mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
@@ -353,27 +381,26 @@ dataToJ48Classification$V49 <- as.factor(dataToJ48Classification$V49)
 resultJ48 <- J48(V49~., data = dataToJ48Classification, control= Weka_control(M=15))#
 
 
-
 pred <- predict(resultJ48, testData)
-v <- data.frame(matrix(0, nrow(testData), 2))
-v[,1] <- pred
-v[,2] <- testClasses
-acc <- length(which(v[,1]==v[,2]))/nrow(testData)
 
 cfMatrix <- confusionMatrix(pred, testClasses)
-acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
+acc <- sum(diag(cfMatrix$table)) / nrow(testData)
 precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))
 acc
 precision
 cfMatrix
 
 
-# knn
+############################################
+
+# KNN
+
+############################################
 
 # normalizacja
 
 #mushroom - dokladnosc 100% bez normalizacji
-train_normalized <- trainData[,c(-16)]
+train_normalized <- trainData[,c(-16)] # 16 kolumna generuje wszedzie NaN, gdyz dzielimy 0/0, dlatego mozna pominac
 test_normalized <- testData[,c(-16)]
 
 #letter - dokladnosc 95% bez normalizacji
@@ -384,13 +411,8 @@ test_normalized <- testData
 train_normalized <- trainData
 test_normalized <- testData
 
-# Funkcja Normalization z pakietu clusterSim teoretycznie powinna normalizowa? dane, ale 
-# z jakiego? powodu mi nie dzia?a i nie daje ?adnej poprawy skuteczno?ci knn, wi?c 
-# poni?ej zrobi?am normalizacj? "r?cznie"
-#train_normalized <- data.Normalization (train_normalized,type="n1",normalization="column")
 
-
-# mushroom & letter
+# możliwa normalizacja danych, wymadana dla sensorow
 train_normalized = as.matrix(as.data.frame(lapply(train_normalized, as.numeric)))#
 
 means_train = colMeans(train_normalized)
@@ -414,28 +436,14 @@ means_test <- as.data.frame(means_test)
 sds_test <- as.data.frame(sds_test)
 
 for(i in 1:nrow(means_train)){
-  "
-  for(j in 1:nrow(train_normalized)){
-    train_normalized[j,i] <- (train_normalized[j,i] - means_train[i,])/sds_train[i,]
-  }
-  for(j in 1:nrow(test_normalized)){
-    test_normalized[j,i] <- (test_normalized[j,i] - means_train[i,])/sds_train[i,]
-  }
-"
   train_normalized[,i] <- (train_normalized[,i] - means_train[i,])/sds_train[i,]
   test_normalized[,i] <- (test_normalized[,i] - means_train[i,])/sds_train[i,]
   
 }
 
-#knnAlg2 <- knn(trainData, testData, trainClasses, k = 3, l = 1) # problem niewlasciwych etykiet?
+
 knnAlg <- knn(train_normalized, test_normalized, trainClasses, k = 3, l = 1)
-v <- data.frame(matrix(0, nrow(testData), 2))
-v[,1] <- knnAlg
-v[,2] <- testClasses
-acc <- length(which(v[,1]==v[,2]))/nrow(testData)
 
-
-# dokladnosc i precyzja dla klasyfikacji
 cfMatrix <- confusionMatrix(knnAlg, testClasses)
 acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
 precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))

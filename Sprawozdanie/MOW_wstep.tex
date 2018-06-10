@@ -442,44 +442,44 @@ Na tej podstawie można wyznaczyć wskaźniki jakości rozwiązania:
 
 %W przypadku większej liczby klas, macierz pomyłek wyznaczana będzie korzystając z podejścia OVA.
 
-\section{Kwestie otwarte}
-W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych parametrów algorytmów, które nie są bezpośrednio związane z zadaniem (np. wybór implementacji algorytmu k-średnich w ramach funkcji \textit{kmeans}). Jeśli podczas testów okaże się, że pewne parametry nieomówione powyżej będą zmieniane, zostanie podana stosowna adnotacja.
+\subsection{Kwestie otwarte w etapie pierwszym}
+W etapie pierwszym nie przewidywaliśmy zmian domyślnych parametrów algorytmów, które nie są bezpośrednio związane z zadaniem (np. wybór implementacji algorytmu k-średnich w ramach funkcji \textit{kmeans}). Podczas testów okazało się, że zwiększenie liczby sąsiadów w algorytmie kNN przynosi lepsze rezultaty. Pozostałe algorytmy korzystają z wartości domyślnych.
 
-Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. W sytuacji gdy wskaźniki te nie będą w stanie wystarczająco jednoznacznie wyznaczyć, które z rozwiązań jest lepsze, zostaną rozważone i opisane inne miary jakości.
+Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. Wskaźniki te nie pokazują pewnych cech, które należy wyszczególnić. Z tego powodu zaprezentowane zostaną także macierze pomyłek, na podstawie których wskaźniki te zostały wyznaczone.
 
-\section{Opis programu}
-
-Program Anomaly Detection przyjmuje na wejście jeden z trzech wybranych zbiorów danych. Przetwarzanie wstępne polega na  wyznaczeniu anomalii, które wykonywane jest na dwa sposoby:
+\section{Implementacja}
+\label{Implementacja}
+Skrypt \textbf{Anomaly Detection} przyjmuje na wejście jeden z trzech wybranych zbiorów danych. Przetwarzanie wstępne polega na  wyznaczeniu anomalii, które wykonywane jest na dwa sposoby:
 \begin{itemize}
 \item anomalie są traktowane jako jedna z klas - tutaj następuje wybór najmniej licznej klasy i usunięcie jej ze zbioru danych.
 \item anomalie są nowymi, sztucznie wygenerowanymi danymi - w celu ich generacji znaleziono wartości minimalne i maksymalne dla każdego atrybutu w zbiorze danych, a następnie na ich podstawie określono przedział wartości, w jakim miały się znaleźć sztuczne anomalie. Wybranym zakresem był przedział: 
-$$ <2*max\_value; max\_value + (max\_value - min\_value)/3 ;$$
+$$ <2*max\_value; \quad max\_value + (max\_value - min\_value)/3 >$$
 Dla każdego zbioru danych liczba wygenerowanych próbek wyniosła około 10\% zbioru testowego.
 \end{itemize}
 Dane podzielono na zbiór treningowy (0,8 wszystkich danych) i testowy (0,2 danych). Na koniec przetwarzania wstępnego dane testowe łączone są z anomaliami.
 
-Grupowanie realizowane jest za pomocą funkcji createGroups. Przyjmuje ona jao argumenty zbiór treningowy, liczbę klas oraz nazwę algorytmu grupowania. Funkcja zwraca model zawierający m.in. informacje o środkach wyznaczonych grup.
+Grupowanie realizowane jest za pomocą funkcji \textbf{createGroups}. Przyjmuje ona jako argumenty zbiór treningowy, liczbę klas oraz nazwę algorytmu grupowania. Funkcja zwraca model zawierający etykiety grup do których zaliczono przykłady trenujące oraz informacje o środkach wyznaczonych grup.
 
-Funkcja predictAnomalies przyjmuje jako argumenty otrzymany w wyniku grupowania model oraz dane testowe. Jej pierwszym krokiem jest określenie rodzaju każdej grupy - odbywa się podział na małe i duże klastry. Następnie obliczane są trzy wskaźniki nietypowości dla każdej próbki w zbiorze testowym. Na ich podstawie wyznaczane są anomalie: wskażniki zostały porównane z eksperymentalnie ustalonym progiem. Jeżeli któryś z nich przekraczał próg, próbka była uznawana za anomalię.
+Funkcja \textbf{predictAnomalies} przyjmuje jako argumenty otrzymany w wyniku grupowania model oraz dane testowe. Pierwszym krokiem jest określenie rodzaju każdej grupy - odbywa się podział na małe i duże klastry zgodnie z \cite{LC} (dodatkowe parametry $\alpha$ i $\beta$). Następnie obliczane są trzy wskaźniki nietypowości dla każdej próbki w zbiorze testowym. Na ich podstawie wyznaczane są anomalie: wskaźniki zostały porównane z eksperymentalnie ustalonym progiem. Jeżeli któryś z nich przekraczał próg, próbka była uznawana za anomalię.
 
-Ostatnim krokiem funkcji jest porównanie otrzymanych ze wskaźników wyników z rzeczywistymi klasami próbek. Wyznaczone zostają wówczas macierz pomyłek oraz wskaźniki dokłądności i precyzji.
+Ostatnim krokiem funkcji jest porównanie otrzymanych ze wskaźników wyników z rzeczywistymi klasami próbek. Wyznaczone zostają wówczas macierz pomyłek oraz wskaźniki dokładności i precyzji.
 
 
 \section{Wyniki}
 
-Dla każdego z trzech algorytmow grupowania wyznaczono wskażniki jakości rozwiązania: dokładność oraz precyzję na podstawie macierzy pomyłek. W przypadku danych z wieloma klasami do jej wyznaczenia zostało wykorzystane podejście One vs All.
+Dla każdego z trzech algorytmów grupowania wyznaczono wskaźniki jakości rozwiązania: dokładność oraz precyzję na podstawie macierzy pomyłek. W przypadku danych z wieloma klasami do jej wyznaczenia zostało wykorzystane podejście One vs All.
 
 %%%%%%%%%%%%%%%%%%% %%        Anomalie jako jedna z grup       %%%%%%%%%%%%%%%%%%%%%
 
-\newpage
-\subsection {Anomalie jako jedna z grup}
+%\newpage
+\subsection{Anomalie jako jedna z grup}
 
 Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z klas i niewykorzystanie jej do budowy modeu grupowania. Zaletą takiego podejścia była łatwość implementacji, natomiast ma on pewną istotną wadę: wybrana klasa nie musi mieć cech anomalii, tzn. jej wartości atrybutów niekoniecznie muszą odbiegać od wartości w innych klasach.
 
 
 %%%%%%%%%%%%%%%%%%% %%%%%%          k-średnia        %%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Grupowanie za pomocą algorytmu k-średnich }
-
+Wartości wskaźników nietypowości dla każdego zbioru danych zostały zebrane w tabeli \ref{accPrec_kmeans}. Odpowiadające im macierze pomyłek zestawiono w tabeli \ref{accPrec_kmeans}.
 %\begin{table}[ht]
 %\centering
 %\caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
@@ -497,11 +497,10 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 %\end{tabular}
 %\end{table}
 
-
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
-\label{accPrec_v2}
+\label{accPrec_kmeans}
 \begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
 \hline
@@ -515,11 +514,10 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 \end{tabular}
 \end{table}
 
-
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \caption{Macierze pomyłek względem wskaźników nietypowości.}
-\label{confMatrix_v1}
+\label{confMatrix_kmeans}
 \begin{tabular}{|*{13}{c|}}
 %\cline{3-4}
 \hline
@@ -539,10 +537,10 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 \subsubsection{Grupowanie za pomocą algorytmu k-medoidów }
 
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \caption{Dokładność i precyzja dla algorytmu k-medoidów.}
-\label{accPrec_v2}
+\label{accPrec_kmedoid}
 \begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
 \hline
@@ -556,12 +554,10 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 \end{tabular}
 \end{table}
 
-
-
 \begin{table}[H]
 \centering
 \caption{Macierze pomyłek dla algorytmu k-medoidów.}
-\label{confMatrix_v1}
+\label{confMatrix_kmedoid}
 \begin{tabular}{|*{13}{c|}}
 %\cline{3-4}
 \hline
@@ -583,15 +579,15 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 \begin{table}[H]
 \centering
 \caption{Dokładność i precyzja dla algorytmu hierarchicznego.}
-\label{accPrec_v2}
+\label{accPrec_hierarchic}
 \begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
 \hline
  & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
  & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
- CBLOF &     0.6939247    &     0.7777535   &       &   0.3351206  &   0.8683181  &       \\\hline
- uCBLOF &  0.6939247   &     0.7600524   &       &   0.3351206  &  0.8475177  &   \\\hline
- LDCOF &    0.1767921      &     0.5900350    &       &  0.1767921   &   0.8566763   &       \\\hline
+ CBLOF &     0.6939247    &     0.7777535   &    0.3739183   &   0.3351206  &   0.8683181  &    0.3933749   \\\hline
+ uCBLOF &  0.6939247   &     0.7600524   &   0.3737159    &   0.3351206  &  0.8475177  & 0.3943293 \\\hline
+ LDCOF &    0.1767921      &     0.5900350    &   0.3996255 &  0.1767921   &   0.8566763   &    0.4058485   \\\hline
  %J48 & & & & & &\\\hline
  %KNN & & & & & &\\\hline
 \end{tabular}
@@ -601,15 +597,15 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 \begin{table}[H]
 \centering
 \caption{Macierze pomyłek dla algorytmu hierarchicznego.}
-\label{confMatrix_v1}
+\label{confMatrix_hierarchic}
 \begin{tabular}{|*{13}{c|}}
 %\cline{3-4}
 \hline
  & \multicolumn{4}{c|}{mushroom} & \multicolumn{4}{c|}{letter} & \multicolumn{4}{c|}{sensor} \\\hline
  & TP & FP & FN & TN  & TP & FP & FN & TN  & TP & FP & FN & TN \\\hline
- CBLOF &     625    &   1240      &   216    &    2676    &    3330   &   505   &   512      &   229   & & & &      \\\hline
- uCBLOF &   625    &   1240      &    216    &    2676   &    3346   &   602   &   496      &   132   & & &   &    \\\hline
- LDCOF &     841    &    3916     &    0       &     0         &    2361   &   395   &   1481    &   339    & & &  &  \\\hline
+ CBLOF &     625    &   1240      &   216    &    2676    &    3330   &   505   &   512      &   229   & 7327 & 11299 & 1073 &     62 \\\hline
+ uCBLOF &   625    &   1240      &    216    &    2676   &    3346   &   602   &   496      &   132   & 7385 & 11343 & 1033  & 0   \\\hline
+ LDCOF &     841    &    3916     &    0       &     0         &    2361   &   395   &   1481    &   339    & 7897 & 11561 & 1503 & 0 \\\hline
  %J48 & & & & & &\\\hline
  %KNN & & & & & &\\\hline
 \end{tabular}
@@ -622,8 +618,8 @@ Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z kl
 
 \begin{table}[ht]
 \centering
-\caption{Dokładność i precyzja dla klasyfikatorów.}
-\label{accPrec_v2}
+\caption{Dokładność i precyzja klasyfikatorów.}
+\label{accPrec_klasyfikacja}
 \begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
 \hline
@@ -636,36 +632,51 @@ J48   &   1      &   0.6925777   &    0.9793162    &    0.9993846    &   0.89471
 
 \begin{figure}[ht]
 \centering
-\includegraphics[scale=0.9]{confMatrixJ48_mushroom.JPG}
+\includegraphics[scale=0.8]{confMatrixJ48_mushroom.JPG}
 \caption{Macierz pomyłek dla drzewa decyzyjnego (zbiór mushroom).}
-\label{confMatrixJ48}
+\label{confMatrixJ48_mushroom}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.6]{confMatrixJ48_letters.JPG}
 \caption{Macierz pomyłek dla drzewa decyzyjnego (zbiór letters).}
-\label{confMatrixJ48}
+\label{confMatrixJ48_letters}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.9]{confMatrixKnn_mushroom.JPG}
+\includegraphics[scale=0.7]{confMatrixJ48_sensor.JPG}
+\caption{Macierz pomyłek dla drzewa decyzyjnego (zbiór sensor).}
+\label{confMatrixJ48_sensor}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.65]{confMatrixKnn_mushroom.JPG}
 \caption{Macierz pomyłek dla klasyfikatora kNN (zbiór mushroom).}
-\label{confMatrixJ48}
+\label{confMatrixKnn_mushroom}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.6]{confMatrixKnn_letters.JPG}
+\includegraphics[scale=0.55]{confMatrixKnn_letters.JPG}
 \caption{Macierz pomyłek dla klasyfikatora kNN (zbiór letters).}
-\label{confMatrixJ48}
+\label{confMatrixKnn_letters}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.63]{confMatrixKnn_sensor.JPG}
+\caption{Macierz pomyłek dla klasyfikatora kNN (zbiór sensor).}
+\label{confMatrixKnn_sensor}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%% %%%%         Sztuczne anomalie        %%%%%%%%%%%%%%%%%%%%%%
 
-\subsection {Sztuczne anomalie}
+\subsection{Sztuczne anomalie}
 
 
 
@@ -673,7 +684,7 @@ J48   &   1      &   0.6925777   &    0.9793162    &    0.9993846    &   0.89471
 \begin{table}[ht]
 \centering
 \caption{Dokładność i precyzja dla sztucznych anomalii.}
-\label{accPrec_v2}
+\label{accPrec_sztuczne}
 \begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
 \hline
@@ -691,7 +702,7 @@ J48   &   1      &   0.6925777   &    0.9793162    &    0.9993846    &   0.89471
 \begin{table}[ht]
 \centering
 \caption{Macierze pomyłek dla sztucznych anomalii.}
-\label{confMatrix_v1}
+\label{confMatrix_sztuczne}
 \begin{tabular}{|*{13}{c|}}
 %\cline{3-4}
 \hline
@@ -705,26 +716,35 @@ J48   &   1      &   0.6925777   &    0.9793162    &    0.9993846    &   0.89471
 \end{tabular}
 \end{table}
 
+\newpage
+\section{Wnioski}
 
-\section {Wnioski}
-
-\subsection {Wskaźniki dla algorytmów grupowania}
+\subsection{Wskaźniki jakości dla algorytmów grupowania}
 
 Na podstawie powyższych wyników można stwierdzić, że wykrywanie anomalii za pomocą algorytmu grupowania i wskaźników CBLOF, uCBLOF oraz LDCOF ustępuje znanym i sprawdzonym klasyfikatorom, ale wciąż daje w większości akceptowalne wyniki. 
 
-Z trzech wskaźników na najlepszy wygląda CBLOF, czyli iloczyn odległości badanej próbki od najbliższej dużej grupy i liczby elementów w grupie, do której obiekt został zaklasyfkowany. W niemal wszystkich przypadkach wartości dokładności i precyzji były wyższe niż w przypadku pozostałych wskaźników, choć często różnice były nieznaczne. Za słabszy wskaźnik można uznać LDCOF - iloraz odległości próbki od najbliższej dużej grupy i średniego dystansu między elementami tej dużej grupy a jej środkiem. Charakteryzował się on mniejszą dokładnością w stusunku do pozostałych wskaźników (często znacznie - 17\% a 69\% dla algorytmu k-średnich i zbioru mushroom). Z drugiej strony osiąga on podobne wyniki we wskaźniku precyzji.
+Z trzech wskaźników najlepsze wyniki prezentuje CBLOF, czyli iloczyn odległości badanej próbki od najbliższej dużej grupy i liczby elementów w grupie, do której obiekt został zaklasyfikowany. W niemal wszystkich przypadkach wartości dokładności i precyzji były wyższe niż w przypadku pozostałych wskaźników, choć często różnice były nieznaczne. Za słabszy wskaźnik można uznać LDCOF - iloraz odległości próbki od najbliższej dużej grupy i średniego dystansu między elementami dużej grupy a jej środkiem. Charakteryzował się on mniejszą dokładnością w stusunku do pozostałych wskaźników (często znacznie - 17\% a 69\% dla algorytmu k-średnich i zbioru mushroom). Z drugiej strony osiąga on podobne wyniki we wskaźniku precyzji.
 
-Pomimo wrażenia, że wartości wskaźników są dość wysokie należy pamiętać, że anomalie są nieliczne w całym zbiorze danych. W związku z tym dokładność klasyfikacji anomalii dla takiego zbioru będzie zawsze wysoka. Przygladając się macierzom pomyłek można zauważyć, że wartość wskaźnika FP jest w przypadku dwóch zbiorów (mushroom i sensor) bardzo wysoka, co oznacza, że wiele przykladów nie zostało uznanych za anomalie, chociaż w rzeczywistości anomaliami były. Widoczne jest to również dla wskaźnika TN określającego liczbę poprawnie wykrytych anomalii - dla zbiorów mushroom (LDCOF) oraz sensor (CBLOF) grupę tę stanowią pojedyncze próbki, co świadczy o mało skutecznym wykrywaniu anomalii.
+Pomimo wrażenia, że wartości wskaźników są dość wysokie należy pamiętać, że anomalie są nieliczne w całym zbiorze danych. W związku z tym dokładność klasyfikacji anomalii dla takiego zbioru będzie zawsze wysoka. Przyglądając się macierzom pomyłek można zauważyć, że wartość wskaźnika FP jest w przypadku dwóch zbiorów (mushroom i sensor) bardzo wysoka, co oznacza, że wiele przykładów nie zostało uznanych za anomalie, chociaż w rzeczywistości anomaliami były. Widoczne jest to również dla wskaźnika TN określającego liczbę poprawnie wykrytych anomalii - dla zbiorów mushroom (LDCOF) oraz sensor (CBLOF) grupę tę stanowią pojedyncze próbki, co świadczy o mało skutecznym wykrywaniu anomalii.
 
 W programie zastosowano trzy różne algorytmy grupowania. Na podstawie otrzymanych wyników można stwierdzić, że dla algorytmów k-średnich oraz hierarchicznego nie występują znaczne różnice w dokładności i precyzji. Od algorytmów tych odbiega metoda k-medoidów, której wynikiem są wyraźnie niższe wskaźniki dla wszystkich zbiorów danych.
 
-\subsection {Porównanie z klasyfikacją}
+Warto również zwrócić uwagę na niskie wartości obu wskaźników jakości dla algorytmu hierarchicznego testowanego na zbiorze sensor. Częściowym powodem takiego wyniku jest mniejsza liczba przykładów wykorzystana do budowy modelu (1/3 przykładów w zbiorze). Wynika to z ograniczeń możliwości obliczeniowych sprzętu na którym wykonywano testy. Aby wyznaczyć dendrogram dla wszystkich danych należałoby skonstruować macierz odległości między każdą parą przykładów (co jest wielkim wyzwaniem dla niemal 60 tysięcy przykładów).
 
-Klasyfikacja za pomocą algorytmów drzew decyzyjnych oraz kNN dała dobre wyniki w porównaniu do grupowania. Najgorszym wynikiem jest tutaj dokładność 69\% dla zbioru letter i drzewa decyzyjnego. Jest to zbiór o największej liczbie klas, więc mogło przyczynić się to do nadmiernego dopasowania drzewa do zbioru treningowego. Pozostałe wyniki sięgają w większości 90\% dokładności i precyzji, osiągnięto również maksymalną dokładność dla jednego ze zbiorów (mushroom).
+\subsection{Porównanie z klasyfikacją}
 
-\subsection {Sztuczne anomalie}
+Klasyfikacja za pomocą algorytmów drzew decyzyjnych oraz kNN dała znacznie lepsze wyniki w porównaniu do grupowania. Najgorszym wynikiem jest tutaj dokładność 69\% dla zbioru letter i drzewa decyzyjnego. Jest to zbiór o największej liczbie klas, więc mogło przyczynić się to do nadmiernego dopasowania drzewa do zbioru treningowego. Pozostałe wyniki sięgają w większości 90\% dokładności i precyzji, osiągnięto również maksymalną dokładność dla jednego ze zbiorów (mushroom). Przewagę podejścia nadzorowanego widać także w macierzach pomyłek, gdzie klasy uznane za anomalie zostają dobrze wyodrębnione.
 
-Utworzenie sztucznych anomalii pozwoliło na wyeliminowanie problemu ewentualnej bliskości klasy anomalii do innych klas. Wyniki są zauważalnie lepsze, choć pogorszyła się jakość wykrywania anomalii dla zbioru o najmniejszej liczbie klas (mushroom). Dla pozostałych zbiorów widać jednak poprawę - liczba prawidłowo wykrytych anomalii jest w miarę zgodna z rzeczywistą ich liczbą: 400 anomalii dla zbioru leter oraz 1500 dla zbioru sensor. Jednak nawet tutaj można zauważyć pojedyncze przypadki słabej detekcji anomalii za pomocą wskaźników - przykładem jest CBLOF dla zbioru sensor, gdzie niepoprawnie wykrytych anomalii (wskaźniki FP i FN) jest znacznie więcej niż w pozostałych przypadkach.
+\subsection{Sztuczne anomalie}
+
+Utworzenie sztucznych anomalii pozwoliło na wyeliminowanie problemu ewentualnej bliskości klasy anomalii do innych klas. Wyniki są zauważalnie lepsze, choć pogorszyła się jakość wykrywania anomalii dla zbioru o najmniejszej liczbie klas (mushroom). Dla pozostałych zbiorów widać jednak poprawę - liczba prawidłowo wykrytych anomalii jest w miarę zgodna z rzeczywistą ich liczbą: 400 anomalii dla zbioru letter oraz 1500 dla zbioru sensor. Jednak nawet tutaj można zauważyć pojedyncze przypadki słabej detekcji anomalii za pomocą wskaźników - przykładem jest CBLOF dla zbioru sensor, gdzie niepoprawnie wykrytych anomalii (wskaźniki FP i FN) jest znacznie więcej niż w pozostałych przypadkach.
+
+\subsection{Wskaźniki nietypowości}
+Jak wspomniano w rozdziale \ref{Implementacja}, stwierdzenie czy dany przykład zaliczyć jako anomalię następowało w wyniku porównania wartości wskaźnika nietypowości oraz pewnego progu. W implementacji rozwiązania, wartości wskaźników zostały znormalizowane do przedziału (0,1), ze względu na trudność ich interpretacji tylko na podstawie otrzymanych wartości. W przedstawionych wynikach wartość progu została dobrana empirycznie na wartość 0,5. Taki dobór można uzasadnić traktowaniem przedziału (0,1) jako prawdopodobieństwa, że przykład jest anomalią. Jeśli wartość wskaźnika przekroczy 50\% możemy podejrzewać, że przykład jest anomalią. 
+
+Na podstawie wyników widać, że stosując takie podejście można znaleźć anomalie, lecz niestety niewiele z nich. Przesuwając próg bliżej jedności narażamy się na zupełne pomijanie poszukiwanych rezultatów. Próg obniżony powoduje, że znajdziemy więcej anomalii, lecz jednocześnie nastąpi znaczne zwiększenie liczności fałszywych negatywnych zgłoszeń anomalii.
+
+Być może taki sposób normalizacji i interpretacji wskaźników nietypowości nie jest najlepszy, lecz w literaturze nie udało się znaleźć co kryje się za stwierdzeniem ,,dostatecznie duża wartość" takiego wskaźnika by wykryć anomalię.
 
 %Takie same tabelki dla dla klasyfikacji.
 %Można też rozważyć trzy progi w stwierdzaniu czy przykład jest anomalią, np. zamiast 0.5 spróbować jeszcze 0.4 i 0.6(0.75?). A poza tym zobaczyć czy jest jakaś istotna różnica, jak podział na małe i duże klastry będzie inny (różne wartości parametrów alfa i beta).
@@ -746,6 +766,8 @@ Utworzenie sztucznych anomalii pozwoliło na wyeliminowanie problemu ewentualnej
 \url{https://www.mimuw.edu.pl/~awojna/SID/referaty/strzelczak/c4_5Main.html}
 \bibitem{kSasiadow}
 \url{https://edu.pjwstk.edu.pl/wyklady/adn/scb/wyklad9/w9.htm}
+\bibitem{LC}
+\url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.20.4242&rep=rep1&type=pdf}
 \bibitem{Rdoc}
 \url{https://www.rdocumentation.org/}
 
