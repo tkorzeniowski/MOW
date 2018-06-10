@@ -2,7 +2,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   classes <- model$labels
   classNames <- unique(classes)
   numberOfClasses <- length(classNames)
-
+  
   print('wyznaczanie klastrow ')
   print(Sys.time())
   # wyznaczanie malych i duzych klastrow
@@ -28,7 +28,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   
   outlierM <- matrix(0, nrow(testData), 3) # miara nietypowosci
   distance <- matrix(0, numberOfClasses, 1) # odleglosc punktu p do wszystkich grup
-
+  
   LC <- classNameSize[which(classNameSize[,3] == 1), 1]
   for(i in 1:nrow(testData)){
     
@@ -62,7 +62,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     outlierM[i,1] <- classNameSize[which(classNameSize[,1]==minDistIndex), 2] * min(distance[LC])
     }
     "
-  
+    
     # LDCOF
     avgDist <- mean(distance)
     if(classNameSize[which(classNameSize[,1]==minDistIndex), 3]){ # if p is in LC
@@ -71,7 +71,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
       #LC <- classNameSize[which(classNameSize[,3] == 1), 1]
       outlierM[i,3] <- min(distance[LC]) / avgDist
     }
-  
+    
   }
   
   print('wyznaczanie anomalii ')
@@ -81,14 +81,14 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   #accTable[,4] <- testClasses
   confusionMatrix <- matrix(0, 3, 4) # dla kazdego wskaznika (TP, FP, FN, TN)
   anomalyClass <- setdiff(unique(testClasses), unique(classes)) # ktora etykieta klasy to anomalie
-
+  
   m1 <- max(outlierM[,1]) - min(outlierM[,1])
   m2 <- max(outlierM[,2]) - min(outlierM[,2])
   m3 <- max(outlierM[,3]) - min(outlierM[,3])
   min1 <- min(outlierM[,1])
   min2 <- min(outlierM[,2])
   min3 <- min(outlierM[,3])
-
+  
   for(i in 1:nrow(testData)){
     
     if((outlierM[i,1]-min1)/m1 > 0.5){ # czysta improwizacja
@@ -133,8 +133,8 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     accuracy[i] <- (confusionMatrix[i,1] + confusionMatrix[i,4])/sum(confusionMatrix[i,])
     precision[i] <- confusionMatrix[i,1] / (confusionMatrix[i,1] + confusionMatrix[i,2])
   }
-
+  
   
   
   return(list('classNameSize' = classNameSize, 'outlier' = outlierM, 'anomalies' = accTable, 'confusionMatrix' = confusionMatrix, 'accuracy' = accuracy, 'precision' = precision))
-}
+  }

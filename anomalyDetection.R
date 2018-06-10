@@ -37,6 +37,7 @@ for(i in 1:nrow(mushroomDataset)){
   }
 }
 
+
 anomalies <- as.data.frame(anomalies)
 anomalies[,1] <- 2
 mushroomDataset <- as.data.frame(mushroomDataset)
@@ -54,9 +55,60 @@ testData <- rbind(testData, anomalies)
 testClasses <- as.numeric(testData[,1])
 testData[,1] <- NULL
 
+######### Sztuczne anomalie ##########
+
+mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
+
+for(i in 1:nrow(mushroomDataset)){
+  for(j in 1:ncol(mushroomDataset)){
+    if(mushroomDataset[i,j]=="?"){
+      mushroomDataset[i,j] <- "i" 
+    }
+    mushroomDataset[i,j] <- which(mushroomDataset[i,j] == letters)
+  }
+}
+
+mushroomDataset <- as.data.frame(mushroomDataset)
+data <- mushroomDataset
+
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
+trainData <-data[idTrainData,]
+trainClasses <- trainData[,1]
+trainData[,1] <- NULL
+testData <-data[-idTrainData,]
+
+data = as.matrix(as.data.frame(lapply(data, as.numeric)))
+
+# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+max_min_feature_values <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+  max_min_feature_values[1,i] = max(data[,i])
+  max_min_feature_values[2,i] = min(data[,i])
+}
+
+
+# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+ranges <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+  ranges[1,i] <- 2 * max_min_feature_values[1,i]
+  ranges[2,i] <- ranges[1,i] + (max_min_feature_values[1,i] - max_min_feature_values[2,i])/3
+}
+
+anomalies <- matrix(0, 150, ncol(data))
+for(i in 1:ncol(data)){
+  anomalies[,i] <- runif(150, ranges[1,i], ranges[2,i])
+}
+anomalies[,1] <- 3
+
+
+testData = as.matrix(as.data.frame(lapply(testData, as.numeric)))
+testData <- rbind(testData, anomalies)
+testClasses <- testData[,1]
+testData <- as.data.frame(testData)
+testData[,1] <- NULL
+
 
 ############################
-
 
 
 letterDataset <- as.matrix(read.table('letterRecognition.txt', sep = ','))
@@ -85,6 +137,54 @@ testClasses <- as.numeric(testData[,1])
 testData[,1] <- NULL
 
 
+######### Sztuczne anomalie ##########
+
+letterDataset <- as.matrix(read.table('letterRecognition.txt', sep = ','))
+for(i in 1:nrow(letterDataset)){
+  letterDataset[i,1] <- which(letterDataset[i,1] == LETTERS)
+}
+letterDataset <- as.data.frame(letterDataset)
+letterClasses <- letterDataset[,1]
+data <- letterDataset
+
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
+trainData <-data[idTrainData,]
+trainClasses <- trainData[,1]
+trainData[,1] <- NULL
+testData <-data[-idTrainData,]
+
+data = as.matrix(as.data.frame(lapply(data, as.numeric)))
+
+# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+max_min_feature_values <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+  max_min_feature_values[1,i] = max(data[,i])
+  max_min_feature_values[2,i] = min(data[,i])
+}
+
+
+# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+ranges <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+  ranges[1,i] <- 2 * max_min_feature_values[1,i]
+  ranges[2,i] <- ranges[1,i] + (max_min_feature_values[1,i] - max_min_feature_values[2,i])/3
+}
+
+anomalies <- matrix(0, 400, ncol(data))
+for(i in 1:ncol(data)){
+  anomalies[,i] <- runif(400, ranges[1,i], ranges[2,i])
+}
+anomalies[,1] <- 26
+
+
+testData = as.matrix(as.data.frame(lapply(testData, as.numeric)))
+testData <- rbind(testData, anomalies)
+testClasses <- testData[,1]
+testData <- as.data.frame(testData)
+testData[,1] <- NULL
+
+
+
 
 ############################
 
@@ -92,9 +192,18 @@ testData[,1] <- NULL
 sensorDataset <- read.table('SensorlessDriveDiagnosis.txt')
 
 anomalies <- sensorDataset[which(sensorDataset[,49]==11),]
-sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
+# tylko na potrzeby testow
+sensor <- 0
+for(i in 1:10){
+  sensor <- rbind(sensor, sensorDataset[which(sensorDataset[,49]==i)[1:2700],])
+}
+sensor <- sensor[-1,]
+# 
 
-data <- sensorDataset
+#sensorDataset <- sensorDataset[-which(sensorDataset[,49]==11),]
+
+#data <- sensorDataset
+data <- sensor
 idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
 trainData <-data[idTrainData,]
 trainClasses <- trainData[,49]
@@ -105,16 +214,49 @@ testData <- rbind(testData, anomalies)
 testClasses <- as.numeric(testData[,49])
 testData[,49] <- NULL
 
+######### Sztuczne anomalie ##########
 
+sensorDataset <- read.table('SensorlessDriveDiagnosis.txt')
+data <- sensorDataset
+idTrainData <- unlist(createDataPartition(data[,1], p=0.8))
+trainData <-data[idTrainData,]
+trainClasses <- trainData[,49]
+trainData[,49] <- NULL
+testData <-data[-idTrainData,]
+
+# Sprawdzam maksymalne i minimalne warto?ci ka?dej z cech
+max_min_feature_values <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+    max_min_feature_values[1,i] = max(data[,i])
+    max_min_feature_values[2,i] = min(data[,i])
+}
+
+
+# obliczam progi dla anomalii: wyst?puj? od warto?ci 2*max przez 1/3 zakresu danej cechy
+ranges <- matrix(0, 2, ncol(data))
+for(i in 1:ncol(data)){
+  ranges[1,i] <- 2 * max_min_feature_values[1,i]
+  ranges[2,i] <- ranges[1,i] + (max_min_feature_values[1,i] - max_min_feature_values[2,i])/3
+}
+
+anomalies <- matrix(0, 1500, ncol(data))
+for(i in 1:ncol(data)){
+    anomalies[,i] <- runif(1500, ranges[1,i], ranges[2,i])
+}
+anomalies[,49] <- 11
+
+testData <- rbind(testData, anomalies)
+testClasses <- as.numeric(testData[,49])
+testData[,49] <- NULL
 
 ############################
 # wyniki implementacji
 #mushroom
-CGResult <- createGroups(trainData, 1, 'kmeans')
+CGResult <- createGroups(trainData, 1, 'kmedoids')
 predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 #letter
-CGResult <- createGroups(trainData, 25, 'kmeans')
+CGResult <- createGroups(trainData, 25, 'hierarchic')
 predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 #sensor
@@ -217,13 +359,13 @@ v <- data.frame(matrix(0, nrow(testData), 2))
 v[,1] <- pred
 v[,2] <- testClasses
 acc <- length(which(v[,1]==v[,2]))/nrow(testData)
-acc
 
 cfMatrix <- confusionMatrix(pred, testClasses)
 acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
 precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))
-
-
+acc
+precision
+cfMatrix
 
 
 # knn
@@ -291,10 +433,13 @@ v <- data.frame(matrix(0, nrow(testData), 2))
 v[,1] <- knnAlg
 v[,2] <- testClasses
 acc <- length(which(v[,1]==v[,2]))/nrow(testData)
-acc
+
 
 # dokladnosc i precyzja dla klasyfikacji
 cfMatrix <- confusionMatrix(knnAlg, testClasses)
 acc2 <- sum(diag(cfMatrix$table)) / nrow(testData)
 precision <- sum(diag(cfMatrix$table)) / (sum(diag(cfMatrix$table)) + sum(lower.tri(cfMatrix$table)))
 
+acc
+precision
+cfMatrix
