@@ -10,15 +10,18 @@ createGroups <- function(trainData, numberOfClasses, algorithm = 'kmeans'){
     result <- kmeans(trainData, numberOfClasses, iter.max = 20, nstart=10)
     labels <- result$cluster
     centers <- result$centers
+    name <- 'kmeans'
     
   }else if(algorithm == 'kmedoids'){
     result <- pam(trainData, diss = FALSE, numberOfClasses, stand = FALSE)
     labels <- result$clustering
     
-    centers <- matrix(0, numberOfClasses, ncol(trainData))
+    centers <- data.frame(matrix(0, numberOfClasses, ncol(trainData)))
+    colnames(centers) <- colnames(trainData)
     for(i in 1:numberOfClasses){
-      centers[i, ] <- trainData[which(apply(pamResult$data, 1, function(x) all.equal(x, pamResult$medoids[i,])) == "TRUE"),] # indeks medoidu
+      centers[i, ] <- trainData[which(apply(result$data, 1, function(x) all.equal(x, result$medoids[i,])) == "TRUE"),] # indeks medoidu
     }
+    name <- 'kmedoids'
     
   }else if(algorithm == 'hierarchic'){
     agnesResult <- agnes(trainData, stand = TRUE)
@@ -29,12 +32,14 @@ createGroups <- function(trainData, numberOfClasses, algorithm = 'kmeans'){
       tmp <- trainData[which(labels==i),]
       centers[i,] <- kmeans(tmp, 1, iter.max = 20, nstart=20)$centers
     }
+    name <- 'hierarchic'
     
   }else{
     labels <- NULL
     centers <- NULL
+    name <- NULL
     warning('Unknown algorithm.')
   }
   
-  return(list('labels' = labels, 'centers' = centers))
+  return(list('labels' = labels, 'centers' = centers, 'name' = name))
 }

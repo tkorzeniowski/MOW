@@ -33,7 +33,11 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   for(i in 1:nrow(testData)){
     
     for(j in 1:numberOfClasses){
-      distance[j] <- dist(rbind(as.matrix(testData[i,]), centers[j,]))
+      if(model$name == 'kmedoids'){
+        distance[j] <- dist(rbind(as.matrix(testData[i,]), as.matrix(centers[j,])))
+      }else{
+        distance[j] <- dist(rbind(as.matrix(testData[i,]), centers[j,]))
+      }
     }
     
     minDistIndex <- which(distance == min(distance)) # ps' index of nearest cluster 
