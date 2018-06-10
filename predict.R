@@ -1,4 +1,7 @@
 predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2){
+  
+  
+  
   classes <- model$labels
   classNames <- unique(classes)
   numberOfClasses <- length(classNames)
@@ -12,8 +15,9 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     #classNameSize[i,1] <- classNames[i]
     classNameSize[i,2] <- length(which(classes==classNames[i]))
   }
-  
+
   classNameSize <- data.frame(classNameSize[order(classNameSize[,2], decreasing = TRUE),])
+
   for(i in 1:(numberOfClasses-1)){
     if(numberOfClasses > 1){
       if((sum(classNameSize[1:i,2]) <= length(classes)*alfa) || classNameSize[i,2]/classNameSize[i+1,2] >= beta){
@@ -21,11 +25,12 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
       }
     }else{classNameSize[1,3] <- 1}
   }
+
   print('wyznaczanie wskaznikow nietypowosci ')
   print(Sys.time())
   # wyznaczanie wskaznikow nietypowosci
   centers <- model$centers
-  
+
   outlierM <- matrix(0, nrow(testData), 3) # miara nietypowosci
   distance <- matrix(0, numberOfClasses, 1) # odleglosc punktu p do wszystkich grup
 
@@ -74,6 +79,7 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
   print(Sys.time())
   # wyznaczanie anomalii
   accTable <- matrix(0, nrow(testData), 3) # CBLOF, uCBLOF, LDCOF - miara mowi, ze anomalia => 1, 0 w p.p.
+
   #accTable[,4] <- testClasses
   confusionMatrix <- matrix(0, 3, 4) # dla kazdego wskaznika (TP, FP, FN, TN)
   anomalyClass <- setdiff(unique(testClasses), unique(classes)) # ktora etykieta klasy to anomalie
@@ -130,7 +136,6 @@ predictAnomalies <- function(model, testData, testClasses, alfa = 0.8, beta = 2)
     precision[i] <- confusionMatrix[i,1] / (confusionMatrix[i,1] + confusionMatrix[i,2])
   }
 
-  
   
   return(list('classNameSize' = classNameSize, 'outlier' = outlierM, 'anomalies' = accTable, 'confusionMatrix' = confusionMatrix, 'accuracy' = accuracy, 'precision' = precision))
 }

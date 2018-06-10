@@ -13,12 +13,15 @@ createGroups <- function(trainData, numberOfClasses, algorithm = 'kmeans'){
     
   }else if(algorithm == 'kmedoids'){
     result <- pam(trainData, diss = FALSE, numberOfClasses, stand = FALSE)
+    #pamResult <- pam(trainData, diss = FALSE, numberOfClasses, stand = FALSE)
     labels <- result$clustering
+    #labels <- pamResult$clustering
     
     centers <- matrix(0, numberOfClasses, ncol(trainData))
     for(i in 1:numberOfClasses){
-      centers[i, ] <- trainData[which(apply(pamResult$data, 1, function(x) all.equal(x, pamResult$medoids[i,])) == "TRUE"),] # indeks medoidu
-    }
+      #centers[i, ] <- trainData[which(apply(pamResult$data, 1, function(x) all.equal(x, pamResult$medoids[i,])) == "TRUE"),] # indeks medoidu
+      centers[i, ] <- trainData[which(apply(result$data, 1, function(x) all.equal(x, result$medoids[i,])) == "TRUE"),] # indeks medoidu
+      }
     
   }else if(algorithm == 'hierarchic'){
     agnesResult <- agnes(trainData, stand = TRUE)

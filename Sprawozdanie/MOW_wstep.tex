@@ -448,23 +448,35 @@ W chwili pisania niniejszego sprawozdania nie przewidujemy zmiany domyślnych pa
 Do oceny jakości klasyfikacji zostały wybrane wskaźniki dokładności i precyzji. W sytuacji gdy wskaźniki te nie będą w stanie wystarczająco jednoznacznie wyznaczyć, które z rozwiązań jest lepsze, zostaną rozważone i opisane inne miary jakości.
 
 \section{Wyniki}
-Taka tabelka dla każdego z algorytmów grupowania (ta, która ładniej będzie wyglądała)
-\begin{table}[ht]
-\centering
-\caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
-\label{accPrec_v1}
-\begin{tabular}{|*{7}{c|}}
+
+Dla każdego z trzech algorytmow grupowania wyznaczono wskażniki jakości rozwiązania: dokładność oraz precyzję na podstawie macierzy pomyłek. W przypadku danych z wieloma klasami do jej wyznaczenia zostało wykorzystane podejście One vs All.
+
+%%%%%%%%%%%%%%%%%%% %%        Anomalie jako jedna z grup       %%%%%%%%%%%%%%%%%%%%%
+
+\subsection {Anomalie jako jedna z grup}
+
+Pierwszym sposobem symulowania anomalii było odłączenie od danych jednej z klas i niewykorzystanie jej do budowy modeu grupowania. Zaletą takiego podejścia była łatwość implementacji, natomiast ma on pewną istotną wadę: wybrana klasa nie musi mieć cech anomalii, tzn. jej wartości atrybutów niekoniecznie muszą odbiegać od wartości w innych klasach.
+
+
+%%%%%%%%%%%%%%%%%%% %%%%%%          k-średnia        %%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Grupowanie za pomocą algorytmu k-średnich }
+
+%\begin{table}[ht]
+%\centering
+%\caption{Dokładność i precyzja rozwiązania względem wskaźników nietypowości.}
+%\label{accPrec_v1}
+%\begin{tabular}{|*{7}{c|}}
 %\cline{3-4}
-\hline
- & \multicolumn{2}{c|}{mushroom} & \multicolumn{2}{c|}{letter} & \multicolumn{2}{c|}{sensor} \\\hline
- & dokładność & precyzja & dokładność & precyzja & dokładność & precyzja \\\hline
- CBLOF & & & & & &\\\hline
- uCBLOF & & & & & &\\\hline
- LDCOF & & & & & &\\\hline
+%\hline
+ %& \multicolumn{2}{c|}{mushroom} & \multicolumn{2}{c|}{letter} & \multicolumn{2}{c|}{sensor} \\\hline
+ %& dokładność & precyzja & dokładność & precyzja & dokładność & precyzja \\\hline
+ %CBLOF &     0.6958167   &    0.3358613   &  0.8323864  &    0.8485604  &   0.6666249   &   0.6666458   \\\hline
+ %uCBLOF &   0.6958167   &    0.3358613   &  0.7810315   &   0.8461726   &   0.6664995   &   0.6665831    \\\hline
+ %LDCOF &     0.1767921  &     0.1767921  &  0.5887238   &   0.8726236  &   0.6664995   &   0.6665831    \\\hline
  %J48 & & & & & &\\\hline
  %KNN & & & & & &\\\hline
-\end{tabular}
-\end{table}
+%\end{tabular}
+%\end{table}
 
 
 \begin{table}[ht]
@@ -476,21 +488,234 @@ Taka tabelka dla każdego z algorytmów grupowania (ta, która ładniej będzie 
 \hline
  & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
  & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
- CBLOF & & & & & &\\\hline
- uCBLOF & & & & & &\\\hline
- LDCOF & & & & & &\\\hline
+ CBLOF &     0.6958167    &     0.8323864    &     0.6665622  &    0.3358613   &  0.8485604   &    0.6666249   \\\hline
+ uCBLOF &   0.6958167   &      0.7810315    &     0.6656221   &    0.3358613   &   0.8461726   &   0.6668555  \\\hline
+ LDCOF &    0.176792      &    0.5887238      &    0.6648699   &    0.1767921   &   0.8726236   &    0.6668770  \\\hline
  %J48 & & & & & &\\\hline
  %KNN & & & & & &\\\hline
 \end{tabular}
 \end{table}
 
-Takie same tabelki dla dla klasyfikacji.
 
-Można też rozważyć trzy progi w stwierdzaniu czy przykład jest anomalią, np. zamiast 0.5 spróbować jeszcze 0.4 i 0.6(0.75?). A poza tym zobaczyć czy jest jakaś istotna różnica, jak podział na małe i duże klastry będzie inny (różne wartości parametrów alfa i beta).
+\begin{table}[ht]
+\centering
+\caption{Macierze pomyłek względem wskaźników nietypowości.}
+\label{confMatrix_v1}
+\begin{tabular}{|*{13}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{4}{c|}{mushroom} & \multicolumn{4}{c|}{letter} & \multicolumn{4}{c|}{sensor} \\\hline
+ & TP & FP & FN & TN  & TP & FP & FN & TN  & TP & FP & FN & TN \\\hline
+ CBLOF &     620    &   1226       &   221    &    2690   &  3743   &   668  &   99     &   66     &   10634   &   5318   &    2    &   1    \\\hline
+ uCBLOF &   620    &   1226      &    221    &    2690   &  3471   &   631  &   371   &   103   &   10593   &    5292   &   43  &   27   \\\hline
+ LDCOF &     841    &    3916     &    0       &     0        &   2295  &   335  &   1547  &   399   &   10568   &    5279   &  68   &   40   \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
 
-No i bardzo ważna sprawa -- jestem przekonany, że wysokie wartości wskaźników to niby fajnie (dla naszego grupowania), ale to jest złudne, gdyż anomalii jest względnie mało (jak anomalii jest około 10\% wśród wszystkich danych to i wskaźnik dokładności może powiedzieć, że 90\%, ale tak naprawdę nie wykrywa anomalii). Dlatego trzeba będzie zwrócić uwagę na same macierze pomyłek, żeby pokazać, że wskaźniki wskaźnikami, a my wiemy, że wcale nie jest tak kolorowo.
 
-Co do podziału danych raczej wystarczy brać 80\% treningowych i 20\% testowych + anomalie, nie będziemy się bawić w walidację krzyżową.
+\newpage
+
+%%%%%%%%%%%%%%%%%%% %%%%%%          k-medoid        %%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Grupowanie za pomocą algorytmu k-medoidów }
+
+
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja dla algorytmu k-medoidów.}
+\label{accPrec_v2}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
+ & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
+ CBLOF &        &       &      &     &      &      \\\hline
+ uCBLOF &    &          &      &     &     &      \\\hline
+ LDCOF &        &         &       &     &    &      \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Macierze pomyłek dla algorytmu k-medoidów.}
+\label{confMatrix_v1}
+\begin{tabular}{|*{13}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{4}{c|}{mushroom} & \multicolumn{4}{c|}{letter} & \multicolumn{4}{c|}{sensor} \\\hline
+ & TP & FP & FN & TN  & TP & FP & FN & TN  & TP & FP & FN & TN \\\hline
+ CBLOF &       &          &       &       &     &    & & & & & &      \\\hline
+ uCBLOF &      &      &        &       &     &  & & & & &   &    \\\hline
+ LDCOF &         &       &         &             &     &    & & & & &  &  \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%% %%%         Algorytm hierarchiczny        %%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Grupowanie za pomocą algorytmu hierarchicznego }
+
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja dla algorytmu hierarchicznego.}
+\label{accPrec_v2}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
+ & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
+ CBLOF &     0.6939247    &     0.7777535   &       &   0.3351206  &   0.8683181  &       \\\hline
+ uCBLOF &  0.6939247   &     0.7600524   &       &   0.3351206  &  0.8475177  &   \\\hline
+ LDCOF &    0.1767921      &     0.5900350    &       &  0.1767921   &   0.8566763   &       \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{Macierze pomyłek dla algorytmu hierarchicznego.}
+\label{confMatrix_v1}
+\begin{tabular}{|*{13}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{4}{c|}{mushroom} & \multicolumn{4}{c|}{letter} & \multicolumn{4}{c|}{sensor} \\\hline
+ & TP & FP & FN & TN  & TP & FP & FN & TN  & TP & FP & FN & TN \\\hline
+ CBLOF &     625    &   1240      &   216    &    2676    &    3330   &   505   &   512      &   229   & & & &      \\\hline
+ uCBLOF &   625    &   1240      &    216    &    2676   &    3346   &   602   &   496      &   132   & & &   &    \\\hline
+ LDCOF &     841    &    3916     &    0       &     0         &    2361   &   395   &   1481    &   339    & & &  &  \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%% %%%%%          Klasyfikatory        %%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Klasyfikacja za pomocą drzew decyzyjnych i algorytmu knn}
+
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja dla klasyfikatorów.}
+\label{accPrec_v2}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
+ & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
+J48   &   1      &   0.6925777   &    0.9793162    &    0.9993846    &   0.8947198    &   0.9993846   \\\hline
+ KNN &   1      &    0.94333      &   0.8117949     &    0.9993846    &   0.9204796    &   0.9993846   \\\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.9]{confMatrixJ48_mushroom.JPG}
+\caption{Macierz pomyłek dla drzewa decyzyjnego (zbiór mushroom).}
+\label{confMatrixJ48}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{confMatrixJ48_letters.JPG}
+\caption{Macierz pomyłek dla drzewa decyzyjnego (zbiór letters).}
+\label{confMatrixJ48}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.9]{confMatrixKnn_mushroom.JPG}
+\caption{Macierz pomyłek dla klasyfikatora kNN (zbiór mushroom).}
+\label{confMatrixJ48}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{confMatrixKnn_letters.JPG}
+\caption{Macierz pomyłek dla klasyfikatora kNN (zbiór letters).}
+\label{confMatrixJ48}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%% %%%%         Sztuczne anomalie        %%%%%%%%%%%%%%%%%%%%%%
+
+\subsection {Sztuczne anomalie}
+
+Dla porównania zastosowano drugi sposób określenia anomalii - wygenerowanie sztucznych danych, które faktycznie odbiegałyby od pozostałych. W tym celu znaleziono wartości minimalne i maksymalne dla każdego atrybutu w zbiorze danych, a następnie na ich podstawie określono przedział wartości, w jakim miały się znaleźć sztuczne anomalie. Wybranym zakresem był przedział: 
+$$ <2*max\_value; max\_value + (max\_value - min\_value)/3 ;$$
+Dla każdego zbioru danych liczba wygenerowanych próbek wyniosła około 10\% zbioru testowego. Poniższe wyniki otrzymano dla algorytmu k-średnich:
+
+
+\begin{table}[ht]
+\centering
+\caption{Dokładność i precyzja dla sztucznych anomalii.}
+\label{accPrec_v2}
+\begin{tabular}{|*{7}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{3}{c|}{dokładność} & \multicolumn{3}{c|}{precyzja} \\\hline
+ & mushroom & letter & sensor & mushroom & letter & sensor \\\hline
+ CBLOF &     0.5586246    &     0.9655880   &    0.7928788   &  1.0000000  &   0.9621364  &    0.8037663   \\\hline
+ uCBLOF & 0.5586246   &      0.9655880    &   0.9195455   &   1.0000000  &   0.9621364   &  0.9092308   \\\hline
+ LDCOF &    0.5259301    &      0.7114859    &   0.9193939   &  0.5259301  &   0.9615799   &   0.9092153   \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[ht]
+\centering
+\caption{Macierze pomyłek dla sztucznych anomalii.}
+\label{confMatrix_v1}
+\begin{tabular}{|*{13}{c|}}
+%\cline{3-4}
+\hline
+ & \multicolumn{4}{c|}{mushroom} & \multicolumn{4}{c|}{letter} & \multicolumn{4}{c|}{sensor} \\\hline
+ & TP & FP & FN & TN  & TP & FP & FN & TN  & TP & FP & FN & TN \\\hline
+ CBLOF &    150   &   0        &    783    &        841          &   3837   &   151     &  0      &  400  &   10457    &  2553     &   181  &  9  \\\hline
+ uCBLOF &  150    &   0        &   783    &       841         &   3837   &   151     &  0       & 400  &   10638  &   1062    &   0   &  1500 \\\hline
+ LDCOF &    933   &    841    &    0      &        0           &   2678   &   107     &  1159  & 444  &   10636   &  1062 &   2       &   1500      \\\hline
+ %J48 & & & & & &\\\hline
+ %KNN & & & & & &\\\hline
+\end{tabular}
+\end{table}
+
+
+\section {Wnioski}
+
+\subsection {Wskaźniki dla algorytmów grupowania}
+
+Na podstawie powyższych wyników można stwierdzić, że wykrywanie anomalii za pomocą algorytmu grupowania i wskaźników CBLOF, uCBLOF oraz LDCOF ustępuje znanym i sprawdzonym klasyfikatorom, ale wciąż daje w większości akceptowalne wyniki. 
+
+Z trzech wskaźników na najlepszy wygląda CBLOF, czyli iloczyn odległości badanej próbki od najbliższej dużej grupy i liczby elementów w grupie, do której obiekt został zaklasyfkowany. We niemal wszystkich przypadkach wartości dokładności i precyzji były wyższe niż w przypadku pozostałych wskaźników, choć często różnice były nieznaczne. Za słabszy wskaźnik można uznać LDCOF - iloraz odległości próbki od najbliższej dużej grupy i średniego dystansu między elementami tej dużej grupy a jej środkiem. Charakteryzował się on mniejszą dokładnością w stusunku do pozostałych wskaźników (często znacznie - 17\% a 69\% dla algorytmu k-średnich i zbioru mushroom). Z drugiej strony osiąga on podobne wyniki w zakresie wskaźnika precyzji.
+
+Pomimo wrażenia, że wartości wskaźników są dość wysokie należy pamiętać, że anomalie są nieliczne w całym zbiorze danych. W związku z tym dokładność klasyfikacji anomalii dla takiego zbioru będzie zawsze wysoka. Przygladając się macierzom pomyłek można zauważyć, że wartość wskaźnika FP jest w przypadku dwóch zbiorów (mushroom i sensor) bardzo wysoka, co oznacza, że wiele przykladów nie zostało uznanych za anomalie, chociaż w rzeczywistości anomaliami były. Widoczne jest to również dla wskaźnika TN określającego liczbę poprawnie wykrytych anomalii - dla zbiorów mushroom (LDCOF) oraz sensor (CBLOF) grupę tę stanowią pojedyncze próbki, co świadczy o mało skutecznym wykrywaniu anomalii.
+
+W programie zastosowano trzy różne algorytmy grupowania. Na podstawie otrzymanych wyników można stwierdzić, że nie zauważono wyraźnych różnic w dokładności i precyzji tych metod. 
+
+\subsection {Porównanie z klasyfikacją}
+
+Klasyfikacja za pomocą algorytmów drzew decyzyjnych oraz kNN dała dobre wyniki w porównaniu do grupowania. Najgorszym wynikiem jest tutaj dokładność 69\% dla zbioru letter i drzewa decyzyjnego. Jest to zbiór o największej liczbie klas, więc mogło przyczynić się to do nadmiernego dopasowania drzewa do zbioru treningowego. Pozostałe wyniki sięgają w większości 90\% dokładności i precyzji, osiągnięto również maksymalną dokładność dla jednego ze zbiorów (mushroom).
+
+\subsection {Sztuczne anomalie}
+
+Utworzenie sztucznych anomalii pozwoliło na wyeliminowanie problemu ewentualnej bliskości klasy anomalii do innych klas. Wyniki są zauważalnie lepsze, choć pogorszyła się jakość wykrywania anomalii dla zbioru o najmniejszej liczbie klas (mushroom). Dla pozostałych zbiorów widać jednak poprawę - liczba prawidłowo wykrytych anomalii jest w miarę zgodna z rzeczywistą ich liczbą: 400 anomalii dla zbioru leter oraz 1500 dla zbioru sensor.
+
+%Takie same tabelki dla dla klasyfikacji.
+%Można też rozważyć trzy progi w stwierdzaniu czy przykład jest anomalią, np. zamiast 0.5 spróbować jeszcze 0.4 i 0.6(0.75?). A poza tym zobaczyć czy jest jakaś istotna różnica, jak podział na małe i duże klastry będzie inny (różne wartości parametrów alfa i beta).
+%No i bardzo ważna sprawa -- jestem przekonany, że wysokie wartości wskaźników to niby fajnie (dla naszego grupowania), ale to jest złudne, gdyż anomalii jest względnie mało (jak anomalii jest około 10\% wśród wszystkich danych to i wskaźnik dokładności może powiedzieć, że 90\%, ale tak naprawdę nie wykrywa anomalii). Dlatego trzeba będzie zwrócić uwagę na same macierze pomyłek, żeby pokazać, że wskaźniki wskaźnikami, a my wiemy, że wcale nie jest tak kolorowo.
+%Co do podziału danych raczej wystarczy brać 80\% treningowych i 20\% testowych + anomalie, nie będziemy się bawić w walidację krzyżową.
+
 
 \begin{thebibliography}{9}
 %\addcontentsline{toc}{section}{Literatura}
