@@ -1,0 +1,11 @@
+Package: anomalyDetection
+Type: Package
+Title: Anomaly detection using grouping methods and CBLOF/ uCBLOF/ LDCOF measures
+Version: 0.1.0
+Author: Tomasz Korzeniowski
+Maintainer: Tomasz Korzeniowski <265753@pw.edu.pl>
+Description: For given training data create clustering for specified number of classes. Using one of CBLOF/ uCBLOF/ LDCOF measures determine whether test observation is an anomaly or not.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 6.0.1

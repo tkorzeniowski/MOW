@@ -8,8 +8,10 @@ library(RWeka)
 library(partykit)
 library(matrixStats)
 library(clusterSim)
-source('createGroups.R')
-source('predict.R')
+
+library(anomalyDetection)
+#source('createGroups.R')
+#source('predict.R')
 set.seed(123)
 
 
@@ -53,7 +55,7 @@ trainData <-data[idTrainData,]
 trainClasses <- matrix(1, nrow(trainData), 1)
 trainData[,1] <- NULL
 testData <-data[-idTrainData,]
-testData[,1] <- 1 
+testData[,1] <- 1
 
 testData <- rbind(testData, anomalies)
 testClasses <- as.numeric(testData[,1])
@@ -66,7 +68,7 @@ mushroomDataset <- as.matrix(read.table('mushroom.txt', sep = ','))
 for(i in 1:nrow(mushroomDataset)){
   for(j in 1:ncol(mushroomDataset)){
     if(mushroomDataset[i,j]=="?"){
-      mushroomDataset[i,j] <- "i" 
+      mushroomDataset[i,j] <- "i"
     }
     mushroomDataset[i,j] <- which(mushroomDataset[i,j] == letters)
   }
@@ -290,19 +292,13 @@ predictResult <- predictAnomalies(CGResult, testData, testClasses)
 
 ############################
 
-"!!! 
-ogólnie nie wiadomo ktora etykieta bedzie odpowiednia dla klasy, tzn. w przypadku grzybow 
-etykiety to 16 i 5, a algorytm k-srednich daje 1 i 2, jak sie dowiedziec czy 16==1 czy 16==2 itd.
-!!! 
-moze sprobowac wszystkich kombinacji i ta, ktora daje najwieksza dokladnosc 
-to jest wlasciwe etyrkietowanie?
-w przypadku wiekszej liczby klas nalezy sie spodziewac, ze problem ten bedzie narastal, gdyz 
-bedzie wiecej mozliwych kombinacji i sprawdzene kazdej z nich zajmie dluzej niz 
-dzialanie algorytmu grupowania
 
-aby temu zaradzic do sprawdzenia dokladnosci patrzymy czy przyklad zostal zaklasyfikowany jako 
-anomalia czy jako dowolna ze znalezionych klas (niewazne ktora, bo i tak nie zgadniemy prawidlowych etykiet)
-"
+
+
+
+
+
+
 
 
 
@@ -438,7 +434,7 @@ sds_test <- as.data.frame(sds_test)
 for(i in 1:nrow(means_train)){
   train_normalized[,i] <- (train_normalized[,i] - means_train[i,])/sds_train[i,]
   test_normalized[,i] <- (test_normalized[,i] - means_train[i,])/sds_train[i,]
-  
+
 }
 
 
